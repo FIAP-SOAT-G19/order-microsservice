@@ -5,7 +5,7 @@
 1. ⛔ Salva os dados do pedido
 2. ⛔ Salva os produtos do pedido
 3. ⛔ Publica os dados do pedido em uma fila de mensageria
-4. ⛔ Retorna status 201 com id do pedido
+4. ⛔ Retorna status 201 com orderNumber do pedido
 
 ## Sugestão
 Como o cliente pode se identificar ou não, o campo clientId pode ser opcional
