@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id         String    @id
+  identifier String
+  name       String
+  email      String
+  cpf        String
+  createdAt  DateTime
+  updatedAt  DateTime? @updatedAt
+  deletedAt  DateTime?
+  Order      Order[]
+
+  @@map("clients")
+}
+
+model Product {
+  id           String          @id
+  identifier   String
+  name         String
+  category     ProductCategory
+  price        Int
+  description  String
+  image        String
+  createdAt    DateTime
+  updatedAt    DateTime?       @updatedAt
+  OrderProduct OrderProduct[]
+
+  @@map("products")
+}
+
+enum OrderStatus {
+  waitingPayment
+  received
+  InPreparation
+  prepared
+  finalized
+  canceled
+}
+
+model Order {
+  id             String         @id
+  orderNumber    String         @unique()
+  client         Client?        @relation(fields: [clientId], references: [id])
+  clientId       String?
+  clientDocument String?
+  status         OrderStatus
+  totalValue     Int
+  createdAt      DateTime
+  paidAt         DateTime?
+  OrderProduct   OrderProduct[]
+
+  @@map("orders")
+}
+
+enum ProductCategory {
+  snack
+  accompaniment
+  drink
+  dessert
+}
+
+model OrderProduct {
+  id           String   @id
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  orderId      String
+  amount       Int
+  productPrice Int
+  createdAt    DateTime
+
+  @@map("order_products")
+}
+
+model Request {
+  id        String   @id
+  method    String
+  route     String
+  input     String   @db.Text
+  output    String   @db.Text
+  status    Int
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@map("requests")
+}
