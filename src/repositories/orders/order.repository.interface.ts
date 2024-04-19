@@ -1,6 +1,16 @@
-import { OrderEntity } from '@/entities/orders/order.entity'
+export type OrderRepositoryInput = {
+  id: string
+  status: string
+  totalValue: number
+  createdAt: Date
+  orderNumber: string
+  updatedAt: Date | null
+  paidAt?: Date
+  clientId?: string
+  clientDocument?: string
+}
 
-export type OrderRepositoryData = {
+export type OrderRepositoryOutput = {
   id: string
   status: string
   totalValue: number
@@ -13,5 +23,5 @@ export type OrderRepositoryData = {
 }
 
 export interface OrderRepositoryInterface {
-  create: (input: OrderRepositoryData) => Promise<OrderEntity>
+  create: (input: OrderRepositoryInput) => Promise<OrderRepositoryOutput>
 }

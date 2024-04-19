@@ -25,27 +25,18 @@ model Client {
 }
 
 model Product {
-  id           String          @id
+  id           String         @id
   identifier   String
   name         String
-  category     ProductCategory
+  category     String
   price        Int
   description  String
   image        String
   createdAt    DateTime
-  updatedAt    DateTime?       @updatedAt
+  updatedAt    DateTime?      @updatedAt
   OrderProduct OrderProduct[]
 
   @@map("products")
-}
-
-enum OrderStatus {
-  waitingPayment
-  received
-  InPreparation
-  prepared
-  finalized
-  canceled
 }
 
 model Order {
@@ -54,20 +45,13 @@ model Order {
   client         Client?        @relation(fields: [clientId], references: [id])
   clientId       String?
   clientDocument String?
-  status         OrderStatus
+  status         String
   totalValue     Int
   createdAt      DateTime
   paidAt         DateTime?
   OrderProduct   OrderProduct[]
 
   @@map("orders")
-}
-
-enum ProductCategory {
-  snack
-  accompaniment
-  drink
-  dessert
 }
 
 model OrderProduct {
