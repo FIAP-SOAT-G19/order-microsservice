@@ -8,8 +8,8 @@ export enum OrderStatus {
 }
 
 export type OrderData = {
-  id: string
-  orderNumber: string
+  id?: string
+  orderNumber?: string
   status: string
   totalValue: number
   createdAt?: Date

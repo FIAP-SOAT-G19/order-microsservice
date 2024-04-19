@@ -8,7 +8,7 @@ export class OrderEntity {
     public readonly status: string,
     public readonly totalValue: number,
     public readonly createdAt: Date,
-    public readonly orderNumber?: string,
+    public readonly orderNumber: string,
     public readonly updatedAt?: Date,
     public readonly paidAt?: Date,
     public readonly clientId?: string,
@@ -32,6 +32,7 @@ export class OrderEntity {
 
   private static create (orderData: OrderData): OrderEntity {
     const { status, totalValue } = orderData
+
     const id = orderData.id ?? randomUUID()
     const orderNumber = orderData.orderNumber ?? this.orderNumberGenerate()
     const createdAt = orderData.createdAt ?? new Date()
