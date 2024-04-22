@@ -17,15 +17,6 @@
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/consistent-type-imports": "off",
-    "@typescript-eslint/indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "ignoredNodes": [
-          "ProperyDefinition"
-        ]
-      }
-    ]
+    "@typescript-eslint/no-extraneous-class": "off"
   }
 }

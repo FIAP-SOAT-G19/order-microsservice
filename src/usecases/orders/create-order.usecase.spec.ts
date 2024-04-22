@@ -1,10 +1,13 @@
 import { CreateOrderUseCase } from './create-order.usecase'
 import { ProductEntity } from '../../entities/products/product.entity'
 import { OrderEntity } from '@/entities/orders/order.entity'
-import { OrderRepositoryInterface } from '@/repositories/orders/order.repository.interface'
+import { OrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
+import { UUIDAdapter } from '@/adapters/tools/uuid.adapter'
 import { mock } from 'jest-mock-extended'
+import MockDate from 'mockdate'
 
-const orderRepository = mock<OrderRepositoryInterface>()
+const gateway = mock<OrderGatewayInterface>()
+const uuid = mock<UUIDAdapter>()
 
 const fakeOrder = {
   id: 'AnyOrderId',
@@ -16,12 +19,35 @@ const fakeOrder = {
   clientDocument: 'AnyClientDocument'
 }
 
+const fakeProducts = [
+  {
+    id: 'product_id_1',
+    name: 'Product 1',
+    category: 'accompaniment',
+    price: 2000,
+    description: 'Product 1 description',
+    image: 'http://uri.com/product1.png',
+    amount: 2,
+    createdAt: new Date()
+  },
+  {
+    id: 'product_id_2',
+    name: 'Product 2',
+    price: 2000,
+    category: 'accompaniment',
+    description: 'Product 2 description',
+    image: 'http://uri.com/product2.png',
+    amount: 2,
+    createdAt: new Date()
+  }
+]
+
 describe('CreateOrderUseCase', () => {
   let sut: any
   let input: any
 
   beforeEach(() => {
-    sut = new CreateOrderUseCase(orderRepository)
+    sut = new CreateOrderUseCase(gateway, uuid)
     input = {
       status: 'waitingPayment',
       clientId: 'AnyCliendId',
@@ -49,9 +75,19 @@ describe('CreateOrderUseCase', () => {
       createdAt: new Date()
     }
 
-    orderRepository.create.mockResolvedValue(fakeOrder)
+    gateway.createOrder.mockResolvedValue(fakeOrder)
+    uuid.generate.mockReturnValue('AnyId')
 
     jest.spyOn(OrderEntity, 'build').mockReturnValue(fakeOrder)
+  })
+
+  beforeAll(() => {
+    MockDate.set(new Date())
+  })
+
+  afterAll(() => {
+    MockDate.reset()
+    jest.clearAllMocks()
   })
 
   test('should make a Product correctly', async () => {
@@ -82,16 +118,21 @@ describe('CreateOrderUseCase', () => {
     expect(spy).toHaveBeenCalledTimes(1)
   })
 
-  test('should call OrderRepository.create once and with correct values', async () => {
+  test('should call gateway.createOrder once and with correct values', async () => {
     await sut.execute(input)
 
-    expect(orderRepository.create).toHaveBeenCalledTimes(1)
-    expect(orderRepository.create).toHaveBeenCalledWith(fakeOrder)
+    expect(gateway.createOrder).toHaveBeenCalledTimes(1)
+    expect(gateway.createOrder).toHaveBeenCalledWith(fakeOrder)
   })
 
   test('should return a orderNumber on success', async () => {
     const output = await sut.execute(input)
 
     expect(output).toBe('AnyOrderNumber')
+  })
+
+  test('should call gateway.createOrderProduct with correct values', async () => {
+    await sut.execute(input)
+    expect(gateway.createOrderProduct).toHaveBeenCalledTimes(2)
   })
 })

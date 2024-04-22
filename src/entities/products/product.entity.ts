@@ -13,7 +13,7 @@ export class ProductEntity {
     public readonly description: string,
     public readonly image: string,
     public readonly amount: number,
-    public readonly createdAt?: Date,
+    public readonly createdAt: Date,
     public readonly updatedAt?: Date
   ) {}
 
