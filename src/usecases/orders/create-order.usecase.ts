@@ -3,6 +3,7 @@ import { CreateOrderInput, CreateOrderUseCaseInterface } from './create-order.us
 import { OrderEntity } from '@/entities/orders/order.entity'
 import { OrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
 import { UUIDAdapter } from '@/adapters/tools/uuid.adapter'
+import { InvalidParamError } from '@/shared/errors'
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
@@ -11,7 +12,9 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   ) {}
 
   async execute (input: CreateOrderInput): Promise<string> {
-    const products = input.products.map(product => { return ProductEntity.build(product) })
+    const products = input.products.map(product => {
+      return ProductEntity.build(product)
+    })
 
     const order = OrderEntity.build({
       status: input.status,
@@ -19,6 +22,8 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
       clientId: input?.clientId,
       clientDocument: input?.clientDocument
     })
+
+    await this.validate(products)
 
     await this.saveOrderAndProducts(order, products)
     return order.orderNumber
@@ -48,6 +53,15 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
         amount: product.amount,
         createdAt: product.createdAt
       })
+    }
+  }
+
+  private async validate(products: ProductEntity []): Promise<void> {
+    for (const product of products) {
+      const productExists = await this.gateway.getProductById(product.id)
+      if (!productExists) {
+        throw new InvalidParamError('productId')
+      }
     }
   }
 }

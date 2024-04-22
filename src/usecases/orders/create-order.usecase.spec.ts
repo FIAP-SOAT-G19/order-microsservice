@@ -5,6 +5,7 @@ import { OrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.
 import { UUIDAdapter } from '@/adapters/tools/uuid.adapter'
 import { mock } from 'jest-mock-extended'
 import MockDate from 'mockdate'
+import { InvalidParamError } from '@/shared/errors'
 
 const gateway = mock<OrderGatewayInterface>()
 const uuid = mock<UUIDAdapter>()
@@ -19,28 +20,16 @@ const fakeOrder = {
   clientDocument: 'AnyClientDocument'
 }
 
-const fakeProducts = [
-  {
-    id: 'product_id_1',
-    name: 'Product 1',
-    category: 'accompaniment',
-    price: 2000,
-    description: 'Product 1 description',
-    image: 'http://uri.com/product1.png',
-    amount: 2,
-    createdAt: new Date()
-  },
-  {
-    id: 'product_id_2',
-    name: 'Product 2',
-    price: 2000,
-    category: 'accompaniment',
-    description: 'Product 2 description',
-    image: 'http://uri.com/product2.png',
-    amount: 2,
-    createdAt: new Date()
-  }
-]
+const fakeProduct = {
+  id: 'product_id_1',
+  name: 'Product 1',
+  category: 'accompaniment',
+  price: 2000,
+  description: 'Product 1 description',
+  image: 'http://uri.com/product1.png',
+  amount: 2,
+  createdAt: new Date()
+}
 
 describe('CreateOrderUseCase', () => {
   let sut: any
@@ -76,6 +65,7 @@ describe('CreateOrderUseCase', () => {
     }
 
     gateway.createOrder.mockResolvedValue(fakeOrder)
+    gateway.getProductById.mockResolvedValue(fakeProduct)
     uuid.generate.mockReturnValue('AnyId')
 
     jest.spyOn(OrderEntity, 'build').mockReturnValue(fakeOrder)
@@ -134,5 +124,15 @@ describe('CreateOrderUseCase', () => {
   test('should call gateway.createOrderProduct with correct values', async () => {
     await sut.execute(input)
     expect(gateway.createOrderProduct).toHaveBeenCalledTimes(2)
+  })
+
+  test('should call gateway.getProductById', async () => {
+    await sut.execute(input)
+    expect(gateway.getProductById).toHaveBeenCalledTimes(2)
+  })
+
+  test('should throwan exception if a invalid product is provided', async () => {
+    gateway.getProductById.mockResolvedValueOnce(null)
+    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('productId'))
   })
 })

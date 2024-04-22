@@ -1,3 +1,5 @@
+import { ProductEntity } from '@/entities/products/product.entity'
+
 export type CreateOrderInput = {
   id: string
   status: string
@@ -32,4 +34,5 @@ export type CreateOrderProductInput = {
 export interface OrderGatewayInterface {
   createOrder: (input: CreateOrderInput) => Promise<CreateOrderOutput>
   createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
+  getProductById: (id: string) => Promise<ProductEntity | null>
 }
