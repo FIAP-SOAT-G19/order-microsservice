@@ -1,13 +1,12 @@
 import { CreateOrderUseCase } from './create-order.usecase'
-import { ProductEntity } from '../../entities/products/product.entity'
 import { OrderEntity } from '@/entities/orders/order.entity'
-import { OrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
-import { UUIDAdapter } from '@/adapters/tools/uuid.adapter'
-import { mock } from 'jest-mock-extended'
-import MockDate from 'mockdate'
+import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
+import { UUIDAdapter } from '@/adapters/tools/crypto/uuid.adapter'
 import { InvalidParamError } from '@/shared/errors'
+import MockDate from 'mockdate'
+import { mock } from 'jest-mock-extended'
 
-const gateway = mock<OrderGatewayInterface>()
+const gateway = mock<CreateOrderGatewayInterface>()
 const uuid = mock<UUIDAdapter>()
 
 const fakeOrder = {
@@ -52,20 +51,14 @@ describe('CreateOrderUseCase', () => {
       clientDocument: 'AnyClientDocument',
       products: [
         {
-          name: 'Product 1',
-          category: 'accompaniment',
+          id: 'idProduct1',
           price: 2000,
-          description: 'Product 1 description',
-          image: 'http://uri.com/product1.png',
           amount: 2
 
         },
         {
-          name: 'Product 2',
-          category: 'accompaniment',
+          id: 'idProduct2',
           price: 2000,
-          description: 'Product 2 description',
-          image: 'http://uri.com/product2.png',
           amount: 2
 
         }
@@ -73,7 +66,6 @@ describe('CreateOrderUseCase', () => {
       createdAt: new Date()
     }
 
-    gateway.createOrder.mockResolvedValue(fakeOrder)
     gateway.getProductById.mockResolvedValue(fakeProduct)
     gateway.getClientById.mockResolvedValue(fakeClient)
 
@@ -89,13 +81,6 @@ describe('CreateOrderUseCase', () => {
   afterAll(() => {
     MockDate.reset()
     jest.clearAllMocks()
-  })
-
-  test('should make a Product correctly', async () => {
-    const spy = jest.spyOn(ProductEntity, 'build')
-    await sut.execute(input)
-
-    expect(spy).toHaveBeenCalledTimes(2)
   })
 
   test('should call calculateTotalValue once and with correct products', async () => {

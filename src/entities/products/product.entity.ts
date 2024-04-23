@@ -12,7 +12,6 @@ export class ProductEntity {
     public readonly price: number,
     public readonly description: string,
     public readonly image: string,
-    public readonly amount: number,
     public readonly createdAt: Date,
     public readonly updatedAt?: Date
   ) {}
@@ -25,7 +24,7 @@ export class ProductEntity {
   private static validate (productData: ProductData): void {
     this.validateRequiredFields(productData)
     this.validateCategory(productData.category)
-    this.validatePriceAndAmount(productData.price, productData.amount)
+    this.validatePrice(productData.price)
   }
 
   private static validateRequiredFields (productData: ProductData): void {
@@ -43,23 +42,19 @@ export class ProductEntity {
     }
   }
 
-  private static validatePriceAndAmount (price: number, amount: number): void {
+  private static validatePrice (price: number): void {
     if (!isValidNumber(price)) {
       throw new InvalidParamError('price')
-    }
-
-    if (!isValidNumber(amount)) {
-      throw new InvalidParamError('amount')
     }
   }
 
   private static create(productData: ProductData): ProductEntity {
-    const { name, category, price, description, image, amount } = productData
+    const { name, category, price, description, image } = productData
 
     const id = productData.id ?? randomUUID()
     const createdAt = productData.createdAt ?? new Date()
     const updatedAt = productData.updatedAt ?? undefined
 
-    return new ProductEntity(id, name, category, price, description, image, amount, createdAt, updatedAt)
+    return new ProductEntity(id, name, category, price, description, image, createdAt, updatedAt)
   }
 }

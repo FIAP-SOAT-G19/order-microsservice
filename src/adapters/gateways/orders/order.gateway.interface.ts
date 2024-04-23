@@ -17,10 +17,9 @@ export type CreateOrderOutput = {
   totalValue: number
   createdAt: Date
   orderNumber: string
-  updatedAt?: Date
-  paidAt?: Date
-  clientId?: string
-  clientDocument?: string
+  paidAt: Date | null
+  clientId: string
+  clientDocument: string | null
 }
 
 export type CreateOrderProductInput = {
@@ -32,7 +31,7 @@ export type CreateOrderProductInput = {
   createdAt: Date
 }
 
-export interface OrderGatewayInterface {
+export interface CreateOrderGatewayInterface {
   createOrder: (input: CreateOrderInput) => Promise<CreateOrderOutput>
   createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
   getProductById: (id: string) => Promise<ProductEntity | null>

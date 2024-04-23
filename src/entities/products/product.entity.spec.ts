@@ -17,8 +17,7 @@ describe('ProductEntity', () => {
       category: 'accompaniment',
       price: 1500,
       description: 'Lata 300 ml',
-      image: 'http://url.com.br/image.png',
-      amount: 1
+      image: 'http://url.com.br/image.png'
     }
   })
 
@@ -60,14 +59,6 @@ describe('ProductEntity', () => {
     }).toThrow(new InvalidParamError('price'))
   })
 
-  test('should throw if a invalid amount is provided', () => {
-    input.amount = -1
-
-    expect(() => {
-      sut.build(input)
-    }).toThrow(new InvalidParamError('amount'))
-  })
-
   test('should make a correct Product Entity', () => {
     const product = sut.build(input)
 
@@ -78,7 +69,6 @@ describe('ProductEntity', () => {
       price: 1500,
       description: 'Lata 300 ml',
       image: 'http://url.com.br/image.png',
-      amount: 1,
       createdAt: new Date()
     })
   })

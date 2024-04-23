@@ -1,25 +1,23 @@
-import { ProductEntity } from '@/entities/products/product.entity'
-import { CreateOrderInput, CreateOrderUseCaseInterface } from './create-order.usecase.interface'
+import { CreateOrderInput, CreateOrderUseCaseInterface, ProductInput } from './create-order.usecase.interface'
 import { OrderEntity } from '@/entities/orders/order.entity'
-import { OrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
-import { UUIDAdapter } from '@/adapters/tools/uuid.adapter'
+import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
 import { InvalidParamError } from '@/shared/errors'
+import { UUIDAdapter } from '@/adapters/tools/crypto/uuid.adapter'
+import constants from '@/shared/constants'
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
-    private readonly gateway: OrderGatewayInterface,
+    private readonly gateway: CreateOrderGatewayInterface,
     private readonly uuid: UUIDAdapter
   ) {}
 
   async execute (input: CreateOrderInput): Promise<string> {
     await this.validate(input?.products, input?.clientId)
 
-    const products = input.products.map(product => {
-      return ProductEntity.build(product)
-    })
+    const products = input.products
 
     const order = OrderEntity.build({
-      status: input.status,
+      status: constants.ORDER_STATUS.WAITING_PAYMENT,
       totalValue: this.calculateTotalValue(products),
       clientId: input?.clientId,
       clientDocument: input?.clientDocument
@@ -29,39 +27,12 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return order.orderNumber
   }
 
-  private calculateTotalValue (products: ProductEntity []): number {
-    return products.reduce((accumulator, element) => accumulator + (element.price * element.amount), 0)
-  }
-
-  private async saveOrderAndProducts(order: OrderEntity, products: ProductEntity[]): Promise<void> {
-    await this.gateway.createOrder({
-      id: order.id,
-      status: order.status,
-      orderNumber: order.orderNumber,
-      totalValue: order.totalValue,
-      clientId: order.clientId,
-      clientDocument: order.clientDocument,
-      createdAt: order.createdAt
-    })
-
-    for (const product of products) {
-      await this.gateway.createOrderProduct({
-        id: this.uuid.generate(),
-        orderId: order.id,
-        productId: product.id,
-        productPrice: product.price,
-        amount: product.amount,
-        createdAt: product.createdAt
-      })
-    }
-  }
-
-  private async validate(products: ProductEntity [], clientId?: string): Promise<void> {
+  private async validate(products: ProductInput [], clientId?: string): Promise<void> {
     await this.validateProducts(products)
     await this.validateClient(clientId)
   }
 
-  private async validateProducts(products: ProductEntity []): Promise<void> {
+  private async validateProducts(products: ProductInput []): Promise<void> {
     if (!products?.length) {
       throw new InvalidParamError('productId')
     }
@@ -82,6 +53,25 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     const clientExists = await this.gateway.getClientById(clientId)
     if (!clientExists) {
       throw new InvalidParamError('clientId')
+    }
+  }
+
+  private calculateTotalValue (products: ProductInput []): number {
+    return products.reduce((accumulator, element) => accumulator + (element.price * element.amount), 0)
+  }
+
+  private async saveOrderAndProducts(order: OrderEntity, products: ProductInput[]): Promise<void> {
+    await this.gateway.createOrder(order)
+
+    for (const product of products) {
+      await this.gateway.createOrderProduct({
+        id: this.uuid.generate(),
+        orderId: order.id,
+        productId: product.id,
+        productPrice: product.price,
+        amount: order.totalValue,
+        createdAt: order.createdAt
+      })
     }
   }
 }

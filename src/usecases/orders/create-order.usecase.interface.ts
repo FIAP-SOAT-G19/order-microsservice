@@ -1,12 +1,16 @@
-import { ProductEntity } from '@/entities/products/product.entity'
-
 export type CreateOrderInput = {
   status: string
   totalValue: number
   createdAt: Date
   clientId?: string
   clientDocument?: string
-  products: ProductEntity []
+  products: ProductInput []
+}
+
+export type ProductInput = {
+  id: string
+  price: number
+  amount: number
 }
 
 export interface CreateOrderUseCaseInterface {

@@ -7,8 +7,7 @@
   "description": "Microsserviço de pedidos do tech challenge",
   "main": "index.js",
   "scripts": {
-    "start": "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && node -r dotenv/config dist/infra/http/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only --clear --ignore-watch node_modules -r dotenv/config src/infra/http/index.ts dotenv_config_path=.env.dev",
+    "start": "npx prisma generate && npx prisma migrate deploy && node -r dotenv/config dist/main/index.js",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc -p tsconfig.build.json",
     "check": "npx npm-check -s -u",

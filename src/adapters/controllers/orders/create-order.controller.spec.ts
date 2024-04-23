@@ -18,19 +18,11 @@ describe('CreateOrderController', () => {
         clientId: 'anyClientId',
         products: [{
           id: 'anyProductId',
-          name: 'AnyProductName',
-          category: 'anyProductCategory',
           price: 2500,
-          description: 'anyProductDescription',
-          image: 'anyProductImageUrl',
           amount: 1
         }, {
           id: 'anyAnotherProductId',
-          name: 'AnyAnotherProductName',
-          category: 'anyAnotherProductCategory',
           price: 1000,
-          description: 'anyAnotherProductDescription',
-          image: 'anyAnotherProductImageUrl',
           amount: 1
         }]
       }
