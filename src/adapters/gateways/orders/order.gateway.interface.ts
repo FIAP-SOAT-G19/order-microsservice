@@ -1,3 +1,4 @@
+import { ClientEntity } from '@/entities/clients/client.entity'
 import { ProductEntity } from '@/entities/products/product.entity'
 
 export type CreateOrderInput = {
@@ -35,4 +36,5 @@ export interface OrderGatewayInterface {
   createOrder: (input: CreateOrderInput) => Promise<CreateOrderOutput>
   createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
   getProductById: (id: string) => Promise<ProductEntity | null>
+  getClientById: (id: string) => Promise<ClientEntity | null>
 }

@@ -31,6 +31,15 @@ const fakeProduct = {
   createdAt: new Date()
 }
 
+const fakeClient = {
+  id: 'AnyId',
+  identifier: 'anyIdentifier',
+  name: 'AnyClientName',
+  email: 'anyEmail@email.com',
+  cpf: 'anyCPF',
+  createdAt: new Date()
+}
+
 describe('CreateOrderUseCase', () => {
   let sut: any
   let input: any
@@ -66,6 +75,8 @@ describe('CreateOrderUseCase', () => {
 
     gateway.createOrder.mockResolvedValue(fakeOrder)
     gateway.getProductById.mockResolvedValue(fakeProduct)
+    gateway.getClientById.mockResolvedValue(fakeClient)
+
     uuid.generate.mockReturnValue('AnyId')
 
     jest.spyOn(OrderEntity, 'build').mockReturnValue(fakeOrder)
@@ -115,12 +126,6 @@ describe('CreateOrderUseCase', () => {
     expect(gateway.createOrder).toHaveBeenCalledWith(fakeOrder)
   })
 
-  test('should return a orderNumber on success', async () => {
-    const output = await sut.execute(input)
-
-    expect(output).toBe('AnyOrderNumber')
-  })
-
   test('should call gateway.createOrderProduct with correct values', async () => {
     await sut.execute(input)
     expect(gateway.createOrderProduct).toHaveBeenCalledTimes(2)
@@ -131,8 +136,26 @@ describe('CreateOrderUseCase', () => {
     expect(gateway.getProductById).toHaveBeenCalledTimes(2)
   })
 
-  test('should throwan exception if a invalid product is provided', async () => {
+  test('should throw an exception if a invalid product is provided', async () => {
     gateway.getProductById.mockResolvedValueOnce(null)
     await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('productId'))
+  })
+
+  test('should call gateway.getClientById once and with correct clientId', async () => {
+    await sut.execute(input)
+
+    expect(gateway.getClientById).toHaveBeenCalledTimes(1)
+    expect(gateway.getClientById).toHaveBeenCalledWith('AnyCliendId')
+  })
+
+  test('should throw an exception if a invalid clientId is provided', async () => {
+    gateway.getClientById.mockResolvedValueOnce(null)
+    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('clientId'))
+  })
+
+  test('should return a orderNumber on success', async () => {
+    const output = await sut.execute(input)
+
+    expect(output).toBe('AnyOrderNumber')
   })
 })

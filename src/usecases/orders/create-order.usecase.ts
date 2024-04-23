@@ -12,6 +12,8 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   ) {}
 
   async execute (input: CreateOrderInput): Promise<string> {
+    await this.validate(input?.products, input?.clientId)
+
     const products = input.products.map(product => {
       return ProductEntity.build(product)
     })
@@ -22,8 +24,6 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
       clientId: input?.clientId,
       clientDocument: input?.clientDocument
     })
-
-    await this.validate(products)
 
     await this.saveOrderAndProducts(order, products)
     return order.orderNumber
@@ -56,12 +56,32 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     }
   }
 
-  private async validate(products: ProductEntity []): Promise<void> {
+  private async validate(products: ProductEntity [], clientId?: string): Promise<void> {
+    await this.validateProducts(products)
+    await this.validateClient(clientId)
+  }
+
+  private async validateProducts(products: ProductEntity []): Promise<void> {
+    if (!products?.length) {
+      throw new InvalidParamError('productId')
+    }
+
     for (const product of products) {
       const productExists = await this.gateway.getProductById(product.id)
       if (!productExists) {
         throw new InvalidParamError('productId')
       }
+    }
+  }
+
+  private async validateClient(clientId?: string): Promise<void> {
+    if (!clientId) {
+      return
+    }
+
+    const clientExists = await this.gateway.getClientById(clientId)
+    if (!clientExists) {
+      throw new InvalidParamError('clientId')
     }
   }
 }
