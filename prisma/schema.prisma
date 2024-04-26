@@ -79,3 +79,21 @@ model Request {
 
   @@map("requests")
 }
+
+model PublishedMessages {
+  id        String   @id
+  queue     String
+  origin    String
+  message   String   @db.Text
+  createdAt DateTime
+
+  @@map("published_messages")
+}
+
+model SeedersHistory {
+  id         String   @id
+  name       String
+  executedAt DateTime
+
+  @@map("seeders_histories")
+}

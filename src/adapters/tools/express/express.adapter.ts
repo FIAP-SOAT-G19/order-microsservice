@@ -1,7 +1,7 @@
 import { ControllerInterface, HttpRequest, HttpResponse } from '@/adapters/controllers/controller.interface'
 import { prismaClient } from '@/adapters/gateways/prisma.client'
 import { Request, Response } from 'express'
-import { UUIDAdapter } from '../crypto/uuid.adapter'
+import { Cryptodapter } from '../crypto/crypto.adapter'
 import { obfuscateValue } from '@/shared/helpers/obfuscate-value.helper'
 
 export const expressRouteAdapter = (controller: ControllerInterface) => {
@@ -23,10 +23,10 @@ export const expressRouteAdapter = (controller: ControllerInterface) => {
 }
 
 const logRequest = async (req: Request, input: any, statusCode: number, output: any): Promise<void> => {
-  const uuidGenerator = new UUIDAdapter()
+  const crypto = new Cryptodapter()
   await prismaClient.request.create({
     data: {
-      id: uuidGenerator.generate(),
+      id: crypto.generateUUID(),
       method: req.method,
       input: JSON.stringify(obfuscateValue({ ...input.body })),
       route: req.url,

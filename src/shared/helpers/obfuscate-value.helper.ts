@@ -6,8 +6,8 @@ export const obfuscateValue = (object: any): object => {
       object[word] = '[OBFUSCATED]'
     }
 
-    if (object.creditCard) {
-      object.creditCard = {
+    if (object.payment.creditCard) {
+      object.payment.creditCard = {
         brand: '[OBFUSCATED]',
         number: '[OBFUSCATED]',
         cvv: '[OBFUSCATED]',

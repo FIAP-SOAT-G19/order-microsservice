@@ -31,9 +31,20 @@ export type CreateOrderProductInput = {
   createdAt: Date
 }
 
+export type CreatePublishedMessageLog = {
+  id: string
+  queue: string
+  origin: string
+  message: string
+  createdAt: Date
+}
+
 export interface CreateOrderGatewayInterface {
   createOrder: (input: CreateOrderInput) => Promise<CreateOrderOutput>
   createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
   getProductById: (id: string) => Promise<ProductEntity | null>
   getClientById: (id: string) => Promise<ClientEntity | null>
+  sendMessageQueue: (queueName: string, body: string) => Promise<boolean>
+  createPublishedMessageLog: (input: CreatePublishedMessageLog) => Promise<void>
+  saveCardExternal: (encryptedData: string) => Promise<string>
 }

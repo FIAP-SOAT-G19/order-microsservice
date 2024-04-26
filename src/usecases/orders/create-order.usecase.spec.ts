@@ -1,13 +1,13 @@
 import { CreateOrderUseCase } from './create-order.usecase'
 import { OrderEntity } from '@/entities/orders/order.entity'
 import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
-import { UUIDAdapter } from '@/adapters/tools/crypto/uuid.adapter'
+import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import { InvalidParamError } from '@/shared/errors'
 import MockDate from 'mockdate'
 import { mock } from 'jest-mock-extended'
 
 const gateway = mock<CreateOrderGatewayInterface>()
-const uuid = mock<UUIDAdapter>()
+const crypto = mock<Cryptodapter>()
 
 const fakeOrder = {
   id: 'AnyOrderId',
@@ -44,7 +44,7 @@ describe('CreateOrderUseCase', () => {
   let input: any
 
   beforeEach(() => {
-    sut = new CreateOrderUseCase(gateway, uuid)
+    sut = new CreateOrderUseCase(gateway, crypto)
     input = {
       status: 'waitingPayment',
       clientId: 'AnyCliendId',
@@ -63,13 +63,25 @@ describe('CreateOrderUseCase', () => {
 
         }
       ],
+      payment: {
+        creditCard: {
+          brand: 'master',
+          number: '5489387644257420',
+          cvv: '685',
+          expiryMonth: '01',
+          expiryYear: '2026'
+        }
+      },
       createdAt: new Date()
     }
 
     gateway.getProductById.mockResolvedValue(fakeProduct)
     gateway.getClientById.mockResolvedValue(fakeClient)
+    gateway.sendMessageQueue.mockResolvedValue(true)
+    gateway.saveCardExternal.mockResolvedValue('anycardIdentifier')
 
-    uuid.generate.mockReturnValue('AnyId')
+    crypto.generateUUID.mockReturnValue('AnyId')
+    crypto.encrypt.mockReturnValue('anyEncryptedData')
 
     jest.spyOn(OrderEntity, 'build').mockReturnValue(fakeOrder)
   })
@@ -138,9 +150,74 @@ describe('CreateOrderUseCase', () => {
     await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('clientId'))
   })
 
+  test('should throw an exception if credit card invalid is not provided', async () => {
+    const requiredFields = ['number', 'brand', 'cvv', 'expiryMonth', 'expiryYear']
+
+    for (const field of requiredFields) {
+      input.payment.creditCard[field] = null
+
+      await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError(`payment.creditCard.${field}`))
+
+      input.payment.creditCard[field] = field
+    }
+  })
+
   test('should return a orderNumber on success', async () => {
     const output = await sut.execute(input)
 
     expect(output).toBe('AnyOrderNumber')
+  })
+
+  test('should call gateway.sendMessageQueue once and with correct values', async () => {
+    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo'
+    const body = JSON.stringify({
+      orderNumber: 'AnyOrderNumber',
+      totalValue: 8000,
+      cardIdentifier: 'anycardIdentifier'
+    })
+
+    await sut.execute(input)
+
+    expect(gateway.sendMessageQueue).toHaveBeenCalledTimes(1)
+    expect(gateway.sendMessageQueue).toHaveBeenCalledWith(queueName, body)
+  })
+
+  test('should call gateway.createPublishedMessageLog once and with correct values', async () => {
+    await sut.execute(input)
+
+    expect(gateway.createPublishedMessageLog).toHaveBeenCalledTimes(1)
+    expect(gateway.createPublishedMessageLog).toHaveBeenCalledWith({
+      id: 'AnyId',
+      queue: 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo',
+      origin: 'CreateOrderUseCase',
+      message: JSON.stringify({
+        orderNumber: 'AnyOrderNumber',
+        totalValue: 8000,
+        cardIdentifier: 'anycardIdentifier'
+      }),
+      createdAt: new Date()
+    })
+  })
+
+  test('should not call gateway.createPublishedMessageLog when publish message fails', async () => {
+    gateway.sendMessageQueue.mockResolvedValueOnce(false)
+
+    await sut.execute(input)
+
+    expect(gateway.createPublishedMessageLog).not.toHaveBeenCalled()
+  })
+
+  test('should call gateway.saveCardExternal onde and with correct credit card', async () => {
+    await sut.execute(input)
+
+    expect(gateway.saveCardExternal).toHaveBeenCalledTimes(1)
+    expect(gateway.saveCardExternal).toHaveBeenCalledWith('anyEncryptedData')
+  })
+
+  test('should call crypto.encrypt once and with correct values', async () => {
+    await sut.execute(input)
+
+    expect(crypto.encrypt).toHaveBeenCalledTimes(1)
+    expect(crypto.encrypt).toHaveBeenCalledWith(input.payment.creditCard)
   })
 })
