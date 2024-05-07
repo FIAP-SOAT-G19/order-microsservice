@@ -4,6 +4,7 @@ import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.ga
 import { InvalidParamError } from '@/shared/errors'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import constants from '@/shared/constants'
+import { logger } from '@/shared/helpers/logger.helper'
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
@@ -70,9 +71,11 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     const encryptedCard = this.crypto.encrypt(creditCard)
 
     try {
+      logger.info(`Send request to card_encryptor microsservice.\nEncryptedCard: ${encryptedCard}`)
       const cardIdentifier = await this.gateway.saveCardExternal(encryptedCard)
 
       if (!this.isValidUUID(cardIdentifier)) {
+        logger.error('Error whilling get cardId')
         throw new InvalidParamError('cardId')
       }
 
@@ -106,6 +109,7 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier })
     const queueName = constants.QUEUE_CREATED_PAYMENT
 
+    logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)
     const success = await this.gateway.sendMessageQueue(queueName, messageBody)
 
     if (success) {
