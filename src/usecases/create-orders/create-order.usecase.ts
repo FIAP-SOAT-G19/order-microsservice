@@ -1,6 +1,6 @@
 import { CreateOrderInput, CreateOrderUseCaseInterface, CreditCardInput, ProductInput } from './create-order.usecase.interface'
 import { OrderEntity } from '@/entities/orders/order.entity'
-import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
+import { CreateOrderGatewayInterface } from '@/adapters/gateways/create-order/create-order.gateway.interface'
 import { InvalidParamError } from '@/shared/errors'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import constants from '@/shared/constants'

@@ -1,4 +1,4 @@
-import { CreateOrderUseCaseInterface } from '@/usecases/orders/create-order.usecase.interface'
+import { CreateOrderUseCaseInterface } from '@/usecases/create-orders/create-order.usecase.interface'
 import { CreateOrderController } from './create-order.controller'
 import { mock } from 'jest-mock-extended'
 import { InvalidParamError } from '@/shared/errors'

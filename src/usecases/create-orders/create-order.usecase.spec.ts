@@ -1,8 +1,9 @@
 import { CreateOrderUseCase } from './create-order.usecase'
 import { OrderEntity } from '@/entities/orders/order.entity'
-import { CreateOrderGatewayInterface } from '@/adapters/gateways/orders/order.gateway.interface'
+import { CreateOrderGatewayInterface } from '@/adapters/gateways/create-order/create-order.gateway.interface'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import { InvalidParamError } from '@/shared/errors'
+import { logger } from '@/shared/helpers/logger.helper'
 import MockDate from 'mockdate'
 import { mock } from 'jest-mock-extended'
 
@@ -42,6 +43,11 @@ const fakeClient = {
 describe('CreateOrderUseCase', () => {
   let sut: any
   let input: any
+
+  beforeAll(() => {
+    jest.spyOn(logger, 'info').mockImplementation(() => {})
+    jest.spyOn(logger, 'error').mockImplementation(() => {})
+  })
 
   beforeEach(() => {
     sut = new CreateOrderUseCase(gateway, crypto)
