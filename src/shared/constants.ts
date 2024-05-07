@@ -11,6 +11,6 @@ export default {
   MESSAGE_GROUP_ID: 'payment',
   MESSAGE_DUPLICATION_ID: 'payment',
   CARD_ENCRYPTOR_MICROSSERVICE: {
-    URL: ''
+    URL: 'http://card_encryptor:3001/api/v1'
   }
 }

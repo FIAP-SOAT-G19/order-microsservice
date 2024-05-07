@@ -78,7 +78,7 @@ describe('CreateOrderUseCase', () => {
     gateway.getProductById.mockResolvedValue(fakeProduct)
     gateway.getClientById.mockResolvedValue(fakeClient)
     gateway.sendMessageQueue.mockResolvedValue(true)
-    gateway.saveCardExternal.mockResolvedValue('anycardIdentifier')
+    gateway.saveCardExternal.mockResolvedValue('6fd92a9e-6a55-4c54-869a-3068e125af27')
 
     crypto.generateUUID.mockReturnValue('AnyId')
     crypto.encrypt.mockReturnValue('anyEncryptedData')
@@ -173,7 +173,7 @@ describe('CreateOrderUseCase', () => {
     const body = JSON.stringify({
       orderNumber: 'AnyOrderNumber',
       totalValue: 8000,
-      cardIdentifier: 'anycardIdentifier'
+      cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27'
     })
 
     await sut.execute(input)
@@ -193,7 +193,7 @@ describe('CreateOrderUseCase', () => {
       message: JSON.stringify({
         orderNumber: 'AnyOrderNumber',
         totalValue: 8000,
-        cardIdentifier: 'anycardIdentifier'
+        cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27'
       }),
       createdAt: new Date()
     })

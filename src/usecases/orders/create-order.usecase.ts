@@ -12,9 +12,11 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   ) {}
 
   async execute (input: CreateOrderInput): Promise<string> {
+    const cardIdentifier = await this.handleCreditCard(input?.payment?.creditCard)
+
     const order = await this.handleOrder(input, input.products)
 
-    const cardIdentifier = await this.handleCreditCard(input?.payment?.creditCard)
+    await this.handleProducts(input?.products, order)
 
     await this.sendMessageQueue(order.orderNumber, order.totalValue, cardIdentifier)
 
@@ -32,36 +34,28 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     })
 
     await this.gateway.createOrder(order)
-    await this.handleProducts(input.products, order)
 
     return order
   }
 
-  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<ProductInput []> {
-    let successCount = 0
-
+  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<void> {
     for (const product of products) {
       const productExists = await this.gateway.getProductById(product.id)
       if (!productExists) {
         throw new InvalidParamError('productId')
       }
-      successCount++
     }
 
-    if (successCount === products.length) {
-      for (const product of products) {
-        await this.gateway.createOrderProduct({
-          id: this.crypto.generateUUID(),
-          orderId: order.id,
-          productId: product.id,
-          productPrice: product.price,
-          amount: order.totalValue,
-          createdAt: order.createdAt
-        })
-      }
+    for (const product of products) {
+      await this.gateway.createOrderProduct({
+        id: this.crypto.generateUUID(),
+        orderId: order.id,
+        productId: product.id,
+        productPrice: product.price,
+        amount: product.amount,
+        createdAt: order.createdAt
+      })
     }
-
-    return products
   }
 
   private async handleCreditCard(creditCard: CreditCardInput): Promise<string> {
@@ -74,8 +68,19 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     }
 
     const encryptedCard = this.crypto.encrypt(creditCard)
-    const cardIdentifier = await this.gateway.saveCardExternal(encryptedCard)
-    return cardIdentifier
+
+    try {
+      const cardIdentifier = await this.gateway.saveCardExternal(encryptedCard)
+
+      if (!this.isValidUUID(cardIdentifier)) {
+        throw new InvalidParamError('cardId')
+      }
+
+      return cardIdentifier
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
   }
 
   private async validateClient(clientId?: string): Promise<void> {
@@ -112,5 +117,10 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
         createdAt: new Date()
       })
     }
+  }
+
+  private isValidUUID(uuid: string): boolean {
+    const uuidRegex: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    return uuidRegex.test(uuid)
   }
 }

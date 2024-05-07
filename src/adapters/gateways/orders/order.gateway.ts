@@ -3,8 +3,8 @@ import { ProductEntity } from '@/entities/products/product.entity'
 import { prismaClient } from '../prisma.client'
 import { CreateOrderInput, CreateOrderGatewayInterface, CreateOrderOutput, CreateOrderProductInput, CreatePublishedMessageLog } from './order.gateway.interface'
 import { AwsSqsAdapter } from '@/adapters/queue/aws-sqs.adapter'
-// import { NodeFetchAdapter } from '@/adapters/tools/http/node-fetch.adapter'
-// import constants from '@/shared/constants'
+import { NodeFetchAdapter } from '@/adapters/tools/http/node-fetch.adapter'
+import constants from '@/shared/constants'
 
 export class CreateOrderGateway implements CreateOrderGatewayInterface {
   async createOrder (data: CreateOrderInput): Promise<CreateOrderOutput> {
@@ -70,18 +70,18 @@ export class CreateOrderGateway implements CreateOrderGatewayInterface {
     await prismaClient.publishedMessages.create({ data })
   }
 
-  async saveCardExternal (encryptedData: string): Promise<string> {
-    // const http = new NodeFetchAdapter()
+  async saveCardExternal (encryptedCard: string): Promise<string> {
+    const http = new NodeFetchAdapter()
 
-    // const url = constants.CARD_ENCRYPTOR_MICROSSERVICE.URL
-    // const data = creditCard
-    // const headers = {
-    //   'Content-Type': 'application/json',
-    //   AppId: ''
-    // }
+    const url = `${constants.CARD_ENCRYPTOR_MICROSSERVICE.URL}/card`
+    const data = { encryptedCard }
+    const headers = {
+      'Content-Type': 'application/json',
+      appid: process.env.APP_ID,
+      secretkey: process.env.SECRET_KEY
+    }
 
-    // const response = await http.post(url, headers, data)
-    // return response.identifier
-    return 'TRSC-1236547896524'
+    const response = await http.post(url, headers, data)
+    return response
   }
 }
