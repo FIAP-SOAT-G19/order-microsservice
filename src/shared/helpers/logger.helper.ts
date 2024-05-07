@@ -7,7 +7,7 @@ const stream = pretty({
 
 const logger = pino({
   enabled: true,
-  level: 'info'
+  level: process.env.TS_NODE_ENV === 'dev' ? 'silent' : 'info'
 }, stream)
 
 export { logger }

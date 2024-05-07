@@ -41,3 +41,9 @@ export class ProductNotFoundError extends Error {
     this.name = 'NotFoundError'
   }
 }
+export class OrderNotFoundError extends Error {
+  constructor () {
+    super('Order not found error')
+    this.name = 'NotFoundError'
+  }
+}

@@ -1,7 +1,7 @@
 import { ClientEntity } from '@/entities/clients/client.entity'
 import { ProductEntity } from '@/entities/products/product.entity'
 import { prismaClient } from '../prisma.client'
-import { CreateOrderInput, CreateOrderGatewayInterface, CreateOrderOutput, CreateOrderProductInput, CreatePublishedMessageLog } from './order.gateway.interface'
+import { CreateOrderInput, CreateOrderGatewayInterface, CreateOrderOutput, CreateOrderProductInput, CreatePublishedMessageLog } from './create-order.gateway.interface'
 import { AwsSqsAdapter } from '@/adapters/queue/aws-sqs.adapter'
 import { NodeFetchAdapter } from '@/adapters/tools/http/node-fetch.adapter'
 import constants from '@/shared/constants'

@@ -1,4 +1,4 @@
-import { CreateOrderUseCaseInterface } from '@/usecases/orders/create-order.usecase.interface'
+import { CreateOrderUseCaseInterface } from '@/usecases/create-orders/create-order.usecase.interface'
 import { ControllerInterface, HttpRequest, HttpResponse } from '../controller.interface'
 import { success } from '@/shared/helpers/http.helper'
 import { handleError } from '@/shared/helpers/error.helper'
