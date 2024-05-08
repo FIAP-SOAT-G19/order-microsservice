@@ -81,7 +81,7 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
 
       return cardIdentifier
     } catch (error) {
-      console.log(error)
+      logger.error(error)
       throw error
     }
   }
@@ -110,7 +110,7 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     const queueName = constants.QUEUE_CREATED_PAYMENT
 
     logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)
-    const success = await this.gateway.sendMessageQueue(queueName, messageBody, orderNumber, orderNumber)
+    const success = await this.gateway.sendMessageQueue(queueName, messageBody, constants.MESSAGE_GROUP_ID, orderNumber)
 
     if (success) {
       await this.gateway.createPublishedMessageLog({
