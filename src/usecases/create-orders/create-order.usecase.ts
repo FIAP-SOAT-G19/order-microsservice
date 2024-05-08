@@ -110,7 +110,7 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     const queueName = constants.QUEUE_CREATED_PAYMENT
 
     logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)
-    const success = await this.gateway.sendMessageQueue(queueName, messageBody)
+    const success = await this.gateway.sendMessageQueue(queueName, messageBody, orderNumber, orderNumber)
 
     if (success) {
       await this.gateway.createPublishedMessageLog({

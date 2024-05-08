@@ -44,7 +44,7 @@ export interface CreateOrderGatewayInterface {
   createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
   getProductById: (id: string) => Promise<ProductEntity | null>
   getClientById: (id: string) => Promise<ClientEntity | null>
-  sendMessageQueue: (queueName: string, body: string) => Promise<boolean>
+  sendMessageQueue: (queueName: string, body: string, messageGroupId: string, messageDeduplicationId: string) => Promise<boolean>
   createPublishedMessageLog: (input: CreatePublishedMessageLog) => Promise<void>
   saveCardExternal: (encryptedData: string) => Promise<string>
 }
