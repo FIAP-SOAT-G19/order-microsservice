@@ -61,9 +61,9 @@ export class CreateOrderGateway implements CreateOrderGatewayInterface {
     }
   }
 
-  async sendMessageQueue (queueName: string, body: string): Promise<boolean> {
+  async sendMessageQueue (queueName: string, body: string, messageGroupId: string, messageDeduplicationId: string): Promise<boolean> {
     const queue = new AwsSqsAdapter()
-    return await queue.sendMessage(queueName, body)
+    return await queue.sendMessage(queueName, body, messageGroupId, messageDeduplicationId)
   }
 
   async createPublishedMessageLog (data: CreatePublishedMessageLog): Promise<void> {
