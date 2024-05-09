@@ -185,7 +185,7 @@ describe('CreateOrderUseCase', () => {
     await sut.execute(input)
 
     expect(gateway.sendMessageQueue).toHaveBeenCalledTimes(1)
-    expect(gateway.sendMessageQueue).toHaveBeenCalledWith(queueName, body)
+    expect(gateway.sendMessageQueue).toHaveBeenCalledWith(queueName, body, 'createdOrder', 'AnyOrderNumber')
   })
 
   test('should call gateway.createPublishedMessageLog once and with correct values', async () => {
@@ -225,5 +225,11 @@ describe('CreateOrderUseCase', () => {
 
     expect(crypto.encrypt).toHaveBeenCalledTimes(1)
     expect(crypto.encrypt).toHaveBeenCalledWith(input.payment.creditCard)
+  })
+
+  test('should throws if card_encryptor returns a invalid card id', async () => {
+    gateway.saveCardExternal.mockResolvedValueOnce('invalidCardId')
+
+    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('cardId'))
   })
 })
