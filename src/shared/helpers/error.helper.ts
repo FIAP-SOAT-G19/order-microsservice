@@ -1,5 +1,5 @@
 import { HttpResponse } from '@/adapters/controllers/controller.interface'
-import { ClientNotFoundError, InvalidParamError, MissingParamError, ProductNotFoundError, SchemaValidationError } from '../errors'
+import { ClientNotFoundError, InvalidParamError, MissingParamError, OrderNotFoundError, ProductNotFoundError, SchemaValidationError } from '../errors'
 import { badRequest, notFound, serverError } from './http.helper'
 
 export const handleError = (error: any): HttpResponse => {
@@ -7,7 +7,7 @@ export const handleError = (error: any): HttpResponse => {
     return badRequest(error)
   }
 
-  if (error instanceof ClientNotFoundError || error instanceof ProductNotFoundError) {
+  if (error instanceof ClientNotFoundError || error instanceof ProductNotFoundError || error instanceof OrderNotFoundError) {
     return notFound(error)
   }
   return serverError(error)
