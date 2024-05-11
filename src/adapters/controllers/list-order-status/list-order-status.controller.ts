@@ -1,7 +1,7 @@
-import { success } from '@/shared/helpers/http.helper'
+import { success } from '../../../shared/helpers/http.helper'
 import { ControllerInterface, HttpRequest, HttpResponse } from '../controller.interface'
-import { ListOrderStatusUseCaseInterface } from '@/usecases/list-order-status/list-order-status.usecase.interface'
-import { handleError } from '@/shared/helpers/error.helper'
+import { ListOrderStatusUseCaseInterface } from '../../../usecases/list-order-status/list-order-status.usecase.interface'
+import { handleError } from '../../../shared/helpers/error.helper'
 
 export class ListOrderStatusController implements ControllerInterface {
   constructor(private readonly listOrderStatusUseCase: ListOrderStatusUseCaseInterface) {}

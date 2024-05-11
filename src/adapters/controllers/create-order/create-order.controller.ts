@@ -1,7 +1,7 @@
 import { CreateOrderUseCaseInterface } from '@/usecases/create-orders/create-order.usecase.interface'
 import { ControllerInterface, HttpRequest, HttpResponse } from '../controller.interface'
-import { success } from '@/shared/helpers/http.helper'
-import { handleError } from '@/shared/helpers/error.helper'
+import { success } from '../../../shared/helpers/http.helper'
+import { handleError } from '../../../shared/helpers/error.helper'
 
 export class CreateOrderController implements ControllerInterface {
   constructor(private readonly createOrderUseCase: CreateOrderUseCaseInterface) {}
