@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: devrsilva/tech-challenge:latest
+          image: devrsilva/order-microsservice
           resources:
             limits:
               memory: "512Mi"
