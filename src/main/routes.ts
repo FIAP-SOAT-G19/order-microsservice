@@ -3,12 +3,13 @@ import { createOrderControllerFactory } from './factories/create-order-controlle
 import { Router } from 'express'
 import { listOrderStatusControllerFactory } from './factories/list-order-status.factory'
 import { updateOrderStatusControllerFactory } from './factories/update-order-status-controller.factory'
-import { listOrderControllerFactory } from './factories/list-orders.factory'
+import { listOrderByOrderNumberControllerFactory } from './factories/list-order-by-order-number-controller.factory'
 
 const router = Router()
 
 router.post('/orders', expressRouteAdapter(createOrderControllerFactory()))
 router.get('/orders/:orderNumber/status', expressRouteAdapter(listOrderStatusControllerFactory()))
+router.get('/orders/:orderNumber', expressRouteAdapter(listOrderByOrderNumberControllerFactory()))
 router.patch('/orders/:orderNumber', expressRouteAdapter(updateOrderStatusControllerFactory()))
 router.get('/orders', expressRouteAdapter(listOrderControllerFactory()))
 
