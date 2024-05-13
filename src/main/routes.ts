@@ -11,5 +11,6 @@ router.post('/orders', expressRouteAdapter(createOrderControllerFactory()))
 router.get('/orders/:orderNumber/status', expressRouteAdapter(listOrderStatusControllerFactory()))
 router.get('/orders/:orderNumber', expressRouteAdapter(listOrderByOrderNumberControllerFactory()))
 router.patch('/orders/:orderNumber', expressRouteAdapter(updateOrderStatusControllerFactory()))
+router.get('/orders', expressRouteAdapter(listOrderControllerFactory()))
 
 export { router }
