@@ -5,6 +5,7 @@ import { InvalidParamError } from '@/shared/errors'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import constants from '@/shared/constants'
 import { logger } from '@/shared/helpers/logger.helper'
+import { ProductEntity } from '@/entities/products/product.entity'
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
@@ -17,9 +18,9 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
 
     const order = await this.handleOrder(input, input.products)
 
-    await this.handleProducts(input?.products, order)
+    const products = await this.handleProducts(input?.products, order)
 
-    await this.sendMessageQueue(order.orderNumber, order.totalValue, cardIdentifier)
+    await this.sendMessageQueue(order.orderNumber, order.totalValue, cardIdentifier, products)
 
     return order.orderNumber
   }
@@ -39,12 +40,15 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return order
   }
 
-  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<void> {
+  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<ProductEntity []> {
+    const productsOutput: ProductEntity [] = []
     for (const product of products) {
       const productExists = await this.gateway.getProductById(product.id)
       if (!productExists) {
         throw new InvalidParamError('productId')
       }
+
+      productsOutput.push(productExists)
     }
 
     for (const product of products) {
@@ -57,6 +61,8 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
         createdAt: order.createdAt
       })
     }
+
+    return productsOutput
   }
 
   private async handleCreditCard(creditCard: CreditCardInput): Promise<string> {
@@ -105,8 +111,8 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return products.reduce((accumulator, element) => accumulator + (element.price * element.amount), 0)
   }
 
-  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string): Promise<void> {
-    const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier })
+  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string, products: ProductEntity []): Promise<void> {
+    const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier, products })
     const queueName = constants.QUEUE_CREATED_PAYMENT
 
     logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)

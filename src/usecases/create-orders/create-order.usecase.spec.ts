@@ -20,17 +20,6 @@ const fakeOrder = {
   clientDocument: 'AnyClientDocument'
 }
 
-const fakeProduct = {
-  id: 'product_id_1',
-  name: 'Product 1',
-  category: 'accompaniment',
-  price: 2000,
-  description: 'Product 1 description',
-  image: 'http://uri.com/product1.png',
-  amount: 2,
-  createdAt: new Date()
-}
-
 const fakeClient = {
   id: 'AnyId',
   identifier: 'anyIdentifier',
@@ -47,6 +36,7 @@ describe('CreateOrderUseCase', () => {
   beforeAll(() => {
     jest.spyOn(logger, 'info').mockImplementation(() => {})
     jest.spyOn(logger, 'error').mockImplementation(() => {})
+    MockDate.set(new Date())
   })
 
   beforeEach(() => {
@@ -81,7 +71,32 @@ describe('CreateOrderUseCase', () => {
       createdAt: new Date()
     }
 
-    gateway.getProductById.mockResolvedValue(fakeProduct)
+    gateway.getProductById.mockImplementation(async (productId: string) => {
+      if (productId === 'idProduct1') {
+        return {
+          id: 'product_id_1',
+          name: 'Product 1',
+          category: 'accompaniment',
+          price: 2000,
+          description: 'Product 1 description',
+          image: 'http://uri.com/product1.png',
+          amount: 2,
+          createdAt: new Date()
+        }
+      } else {
+        return {
+          id: 'product_id_2',
+          name: 'Product 2',
+          category: 'accompaniment',
+          price: 2000,
+          description: 'Product 1 description',
+          image: 'http://uri.com/product1.png',
+          amount: 2,
+          createdAt: new Date()
+        }
+      }
+    })
+
     gateway.getClientById.mockResolvedValue(fakeClient)
     gateway.sendMessageQueue.mockResolvedValue(true)
     gateway.saveCardExternal.mockResolvedValue('6fd92a9e-6a55-4c54-869a-3068e125af27')
@@ -90,10 +105,6 @@ describe('CreateOrderUseCase', () => {
     crypto.encrypt.mockReturnValue('anyEncryptedData')
 
     jest.spyOn(OrderEntity, 'build').mockReturnValue(fakeOrder)
-  })
-
-  beforeAll(() => {
-    MockDate.set(new Date())
   })
 
   afterAll(() => {
@@ -179,7 +190,26 @@ describe('CreateOrderUseCase', () => {
     const body = JSON.stringify({
       orderNumber: 'AnyOrderNumber',
       totalValue: 8000,
-      cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27'
+      cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27',
+      products: [{
+        id: 'product_id_1',
+        name: 'Product 1',
+        category: 'accompaniment',
+        price: 2000,
+        description: 'Product 1 description',
+        image: 'http://uri.com/product1.png',
+        amount: 2,
+        createdAt: new Date()
+      }, {
+        id: 'product_id_2',
+        name: 'Product 2',
+        category: 'accompaniment',
+        price: 2000,
+        description: 'Product 1 description',
+        image: 'http://uri.com/product1.png',
+        amount: 2,
+        createdAt: new Date()
+      }]
     })
 
     await sut.execute(input)
@@ -199,7 +229,26 @@ describe('CreateOrderUseCase', () => {
       message: JSON.stringify({
         orderNumber: 'AnyOrderNumber',
         totalValue: 8000,
-        cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27'
+        cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27',
+        products: [{
+          id: 'product_id_1',
+          name: 'Product 1',
+          category: 'accompaniment',
+          price: 2000,
+          description: 'Product 1 description',
+          image: 'http://uri.com/product1.png',
+          amount: 2,
+          createdAt: new Date()
+        }, {
+          id: 'product_id_2',
+          name: 'Product 2',
+          category: 'accompaniment',
+          price: 2000,
+          description: 'Product 1 description',
+          image: 'http://uri.com/product1.png',
+          amount: 2,
+          createdAt: new Date()
+        }]
       }),
       createdAt: new Date()
     })

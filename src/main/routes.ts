@@ -1,9 +1,10 @@
 import { expressRouteAdapter } from '@/adapters/tools/express/express.adapter'
 import { createOrderControllerFactory } from './factories/create-order-controller.factory'
-import { Router } from 'express'
 import { listOrderStatusControllerFactory } from './factories/list-order-status.factory'
 import { updateOrderStatusControllerFactory } from './factories/update-order-status-controller.factory'
 import { listOrderByOrderNumberControllerFactory } from './factories/list-order-by-order-number-controller.factory'
+import { listOrderControllerFactory } from './factories/list-orders.factory'
+import { Router } from 'express'
 
 const router = Router()
 
