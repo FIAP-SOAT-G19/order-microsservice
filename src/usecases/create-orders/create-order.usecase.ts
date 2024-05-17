@@ -6,6 +6,12 @@ import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import constants from '@/shared/constants'
 import { logger } from '@/shared/helpers/logger.helper'
 import { ProductEntity } from '@/entities/products/product.entity'
+import { ClientEntity } from '@/entities/clients/client.entity'
+
+type HandleOrderOutput = {
+  order: OrderEntity
+  client: ClientEntity | null
+}
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
@@ -16,17 +22,17 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   async execute (input: CreateOrderInput): Promise<string> {
     const cardIdentifier = await this.handleCreditCard(input?.payment?.creditCard)
 
-    const order = await this.handleOrder(input, input.products)
+    const { order, client } = await this.handleOrder(input, input.products)
 
     const products = await this.handleProducts(input?.products, order)
 
-    await this.sendMessageQueue(order.orderNumber, order.totalValue, cardIdentifier, products)
+    await this.sendMessageQueue(order.orderNumber, order.totalValue, cardIdentifier, products, client)
 
     return order.orderNumber
   }
 
-  private async handleOrder(input: CreateOrderInput, products: ProductInput []): Promise<OrderEntity> {
-    await this.validateClient(input?.clientId)
+  private async handleOrder(input: CreateOrderInput, products: ProductInput []): Promise<HandleOrderOutput> {
+    const client = await this.validateClient(input?.clientId)
 
     const order = OrderEntity.build({
       status: constants.ORDER_STATUS.WAITING_PAYMENT,
@@ -37,7 +43,7 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
 
     await this.gateway.createOrder(order)
 
-    return order
+    return { order, client }
   }
 
   private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<ProductEntity []> {
@@ -92,15 +98,17 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     }
   }
 
-  private async validateClient(clientId?: string): Promise<void> {
+  private async validateClient(clientId?: string): Promise<ClientEntity | null> {
     if (!clientId) {
-      return
+      return null
     }
 
     const clientExists = await this.gateway.getClientById(clientId)
     if (!clientExists) {
       throw new InvalidParamError('clientId')
     }
+
+    return clientExists
   }
 
   private calculateTotalValue (products: ProductInput []): number {
@@ -111,8 +119,8 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return products.reduce((accumulator, element) => accumulator + (element.price * element.amount), 0)
   }
 
-  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string, products: ProductEntity []): Promise<void> {
-    const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier, products })
+  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string, products: ProductEntity [], client: ClientEntity | null): Promise<void> {
+    const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier, products, client })
     const queueName = constants.QUEUE_CREATED_PAYMENT
 
     logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)

@@ -65,4 +65,11 @@ describe('UpdateOrderUseCase', () => {
     expect(gateway.updateOrderStatus).toHaveBeenCalledTimes(1)
     expect(gateway.updateOrderStatus).toHaveBeenCalledWith('anyOrderNumber', 'received', new Date())
   })
+
+  test('should call gateway.updateOrder once and with correct values when payment unauthorized', async () => {
+    await sut.execute(orderNumber, 'canceled')
+
+    expect(gateway.updateOrderStatus).toHaveBeenCalledTimes(1)
+    expect(gateway.updateOrderStatus).toHaveBeenCalledWith('anyOrderNumber', 'canceled', null)
+  })
 })

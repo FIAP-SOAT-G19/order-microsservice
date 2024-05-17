@@ -4,8 +4,8 @@ import { CreateOrderGatewayInterface } from '@/adapters/gateways/create-order/cr
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import { InvalidParamError } from '@/shared/errors'
 import { logger } from '@/shared/helpers/logger.helper'
-import MockDate from 'mockdate'
 import { mock } from 'jest-mock-extended'
+import MockDate from 'mockdate'
 
 const gateway = mock<CreateOrderGatewayInterface>()
 const crypto = mock<Cryptodapter>()
@@ -26,7 +26,7 @@ const fakeClient = {
   name: 'AnyClientName',
   email: 'anyEmail@email.com',
   cpf: 'anyCPF',
-  createdAt: new Date()
+  createdAt: new Date('1990-01-01')
 }
 
 describe('CreateOrderUseCase', () => {
@@ -34,9 +34,9 @@ describe('CreateOrderUseCase', () => {
   let input: any
 
   beforeAll(() => {
+    MockDate.set(new Date())
     jest.spyOn(logger, 'info').mockImplementation(() => {})
     jest.spyOn(logger, 'error').mockImplementation(() => {})
-    MockDate.set(new Date())
   })
 
   beforeEach(() => {
@@ -125,6 +125,12 @@ describe('CreateOrderUseCase', () => {
     expect(totalValue).toBe(8000)
   })
 
+  test('should throws if products is empty', async () => {
+    input.products = null
+
+    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('products'))
+  })
+
   test('should make a correct Order correctly', async () => {
     const spy = jest.spyOn(OrderEntity, 'build')
 
@@ -209,8 +215,53 @@ describe('CreateOrderUseCase', () => {
         image: 'http://uri.com/product1.png',
         amount: 2,
         createdAt: new Date()
-      }]
+      }],
+      client: {
+        id: 'AnyId',
+        identifier: 'anyIdentifier',
+        name: 'AnyClientName',
+        email: 'anyEmail@email.com',
+        cpf: 'anyCPF',
+        createdAt: new Date('1990-01-01')
+      }
     })
+
+    await sut.execute(input)
+
+    expect(gateway.sendMessageQueue).toHaveBeenCalledTimes(1)
+    expect(gateway.sendMessageQueue).toHaveBeenCalledWith(queueName, body, 'createdOrder', 'AnyOrderNumber')
+  })
+
+  test('should call gateway.sendMessageQueue once and with correct values when client is not provided', async () => {
+    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo'
+    const body = JSON.stringify({
+      orderNumber: 'AnyOrderNumber',
+      totalValue: 8000,
+      cardIdentifier: '6fd92a9e-6a55-4c54-869a-3068e125af27',
+      products: [{
+        id: 'product_id_1',
+        name: 'Product 1',
+        category: 'accompaniment',
+        price: 2000,
+        description: 'Product 1 description',
+        image: 'http://uri.com/product1.png',
+        amount: 2,
+        createdAt: new Date()
+      }, {
+        id: 'product_id_2',
+        name: 'Product 2',
+        category: 'accompaniment',
+        price: 2000,
+        description: 'Product 1 description',
+        image: 'http://uri.com/product1.png',
+        amount: 2,
+        createdAt: new Date()
+      }],
+      client: null
+    })
+
+    input.clientId = null
+    input.clientDocument = null
 
     await sut.execute(input)
 
@@ -248,7 +299,15 @@ describe('CreateOrderUseCase', () => {
           image: 'http://uri.com/product1.png',
           amount: 2,
           createdAt: new Date()
-        }]
+        }],
+        client: {
+          id: 'AnyId',
+          identifier: 'anyIdentifier',
+          name: 'AnyClientName',
+          email: 'anyEmail@email.com',
+          cpf: 'anyCPF',
+          createdAt: new Date('1990-01-01')
+        }
       }),
       createdAt: new Date()
     })
