@@ -10,6 +10,8 @@ import MockDate from 'mockdate'
 const gateway = mock<CreateOrderGatewayInterface>()
 const crypto = mock<Cryptodapter>()
 
+process.env.CREATED_ORDER_QUEUE_NAME = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo'
+
 const fakeOrder = {
   id: 'AnyOrderId',
   status: 'waitingPayment',
@@ -192,7 +194,7 @@ describe('CreateOrderUseCase', () => {
   })
 
   test('should call gateway.sendMessageQueue once and with correct values', async () => {
-    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo'
+    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo'
     const body = JSON.stringify({
       orderNumber: 'AnyOrderNumber',
       totalValue: 8000,
@@ -233,7 +235,7 @@ describe('CreateOrderUseCase', () => {
   })
 
   test('should call gateway.sendMessageQueue once and with correct values when client is not provided', async () => {
-    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo'
+    const queueName = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo'
     const body = JSON.stringify({
       orderNumber: 'AnyOrderNumber',
       totalValue: 8000,
@@ -275,7 +277,7 @@ describe('CreateOrderUseCase', () => {
     expect(gateway.createPublishedMessageLog).toHaveBeenCalledTimes(1)
     expect(gateway.createPublishedMessageLog).toHaveBeenCalledWith({
       id: 'AnyId',
-      queue: 'https://sqs.us-east-1.amazonaws.com/975049990702/created_payment.fifo',
+      queue: 'https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo',
       origin: 'CreateOrderUseCase',
       message: JSON.stringify({
         orderNumber: 'AnyOrderNumber',

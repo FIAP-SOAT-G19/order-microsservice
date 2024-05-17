@@ -1,17 +1,11 @@
-import { CreateOrderInput, CreateOrderUseCaseInterface, CreditCardInput, ProductInput } from './create-order.usecase.interface'
+import { CreateOrderInput, CreateOrderUseCaseInterface, CreditCardInput, HandleOrderOutput, ProductInput, ProductMessageInput } from './create-order.usecase.interface'
 import { OrderEntity } from '@/entities/orders/order.entity'
 import { CreateOrderGatewayInterface } from '@/adapters/gateways/create-order/create-order.gateway.interface'
 import { InvalidParamError } from '@/shared/errors'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
 import constants from '@/shared/constants'
 import { logger } from '@/shared/helpers/logger.helper'
-import { ProductEntity } from '@/entities/products/product.entity'
 import { ClientEntity } from '@/entities/clients/client.entity'
-
-type HandleOrderOutput = {
-  order: OrderEntity
-  client: ClientEntity | null
-}
 
 export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
   constructor(
@@ -46,15 +40,25 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return { order, client }
   }
 
-  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<ProductEntity []> {
-    const productsOutput: ProductEntity [] = []
+  private async handleProducts(products: ProductInput [], order: OrderEntity): Promise<ProductMessageInput []> {
+    const productsOutput: ProductMessageInput [] = []
     for (const product of products) {
       const productExists = await this.gateway.getProductById(product.id)
       if (!productExists) {
         throw new InvalidParamError('productId')
       }
 
-      productsOutput.push(productExists)
+      productsOutput.push({
+        id: productExists.id,
+        name: productExists.name,
+        category: productExists.category,
+        price: productExists.price,
+        description: productExists.description,
+        image: productExists.image,
+        amount: product.amount,
+        createdAt: productExists.createdAt,
+        updatedAt: productExists.updatedAt
+      })
     }
 
     for (const product of products) {
@@ -119,9 +123,9 @@ export class CreateOrderUseCase implements CreateOrderUseCaseInterface {
     return products.reduce((accumulator, element) => accumulator + (element.price * element.amount), 0)
   }
 
-  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string, products: ProductEntity [], client: ClientEntity | null): Promise<void> {
+  private async sendMessageQueue(orderNumber: string, totalValue: number, cardIdentifier: string, products: ProductMessageInput [], client: ClientEntity | null): Promise<void> {
     const messageBody = JSON.stringify({ orderNumber, totalValue, cardIdentifier, products, client })
-    const queueName = constants.QUEUE_CREATED_PAYMENT
+    const queueName = process.env.CREATED_ORDER_QUEUE_NAME!
 
     logger.info(`Publishing message on queue\nQueueName: ${queueName}\nMessage: ${messageBody}`)
     const success = await this.gateway.sendMessageQueue(queueName, messageBody, constants.MESSAGE_GROUP_ID, orderNumber)
