@@ -7,7 +7,7 @@ import { UpdateOrderUseCase } from '@/usecases/update-order-status/update-order.
 export const processMessagesOnQueue = async (): Promise<void> => {
   while (true) {
     try {
-      await processedPaymentsQueues([constants.QUEUE_APPROVED_PAYMENT, constants.QUEUE_UNAUTHORIZED_PAYMENT])
+      await processedPaymentsQueues([process.env.QUEUE_APPROVED_PAYMENT!, process.env.QUEUE_UNAUTHORIZED_PAYMENT!])
     } catch (error: any) {
       logger.error(`Error processing queue message, ${error}`)
     }

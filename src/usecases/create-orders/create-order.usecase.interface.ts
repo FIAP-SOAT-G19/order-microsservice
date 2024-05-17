@@ -1,3 +1,6 @@
+import { ClientEntity } from '@/entities/clients/client.entity'
+import { OrderEntity } from '@/entities/orders/order.entity'
+
 export type CreateOrderInput = {
   status: string
   totalValue: number
@@ -24,6 +27,23 @@ export type CreditCardInput = {
   cvv: string
   expiryMonth: string
   expiryYear: string
+}
+
+export type HandleOrderOutput = {
+  order: OrderEntity
+  client: ClientEntity | null
+}
+
+export type ProductMessageInput = {
+  id: string
+  name: string
+  category: string
+  price: number
+  description: string
+  image: string
+  amount: number
+  createdAt: Date
+  updatedAt?: Date
 }
 
 export interface CreateOrderUseCaseInterface {
