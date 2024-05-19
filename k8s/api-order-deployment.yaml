@@ -76,42 +76,42 @@ spec:
             - name: AWS_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: AWS_ACCESS_KEY
             - name: AWS_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: AWS_SECRET_KEY
             - name: ENCRYPT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: ENCRYPT_KEY
             - name: APP_ID
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: APP_ID
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: SECRET_KEY
             - name: CREATED_ORDER_QUEUE_NAME
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: CREATED_ORDER_QUEUE_NAME
             - name: QUEUE_APPROVED_PAYMENT
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: QUEUE_APPROVED_PAYMENT
             - name: QUEUE_UNAUTHORIZED_PAYMENT
               valueFrom:
                 secretKeyRef:
-                  name: credentials
+                  name: order-credentials
                   key: QUEUE_UNAUTHORIZED_PAYMENT
             
 ---
