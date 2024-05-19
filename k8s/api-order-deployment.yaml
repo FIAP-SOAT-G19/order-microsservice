@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-deployment
+  name: api-order-deployment
 spec:
   selector:
     matchLabels:
-      app: api
+      app: api-order
   template:
     metadata:
       labels:
-        app: api
+        app: api-order
     spec:
       containers:
         - name: api
-          image: devrsilva/tech-challenge:latest
+          image: devrsilva/order-microsservice:latest
           resources:
             limits:
               memory: "512Mi"
@@ -24,7 +24,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/v1/livenessProbe
-              port: 3000
+              port: 3001
             initialDelaySeconds: 15
             periodSeconds: 10
             successThreshold: 1
@@ -33,7 +33,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/v1/readinessProbe
-              port: 3000
+              port: 3001
             initialDelaySeconds: 15
             periodSeconds: 10
             successThreshold: 1
@@ -65,6 +65,52 @@ spec:
                 secretKeyRef:
                   name: api-secrets
                   key: postgres-password
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: aws-region
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: AWS_ACCESS_KEY
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: AWS_SECRET_KEY
+            - name: ENCRYPT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: ENCRYPT_KEY
+            - name: APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: APP_ID
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: SECRET_KEY
+            - name: CREATED_ORDER_QUEUE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: CREATED_ORDER_QUEUE_NAME
+            - name: QUEUE_APPROVED_PAYMENT
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: QUEUE_APPROVED_PAYMENT
+            - name: QUEUE_UNAUTHORIZED_PAYMENT
+              valueFrom:
+                secretKeyRef:
+                  name: credentials
+                  key: QUEUE_UNAUTHORIZED_PAYMENT
+            
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -91,11 +137,13 @@ metadata:
   name: api-secrets
 type: Opaque
 stringData:
-  postgres-db: tech_challenge
+  postgres-db: orders
   postgres-user: postgres
   postgres-password: postgres
-  postgres-host: dbpostgres.czg2ea2yu0rz.us-east-1.rds.amazonaws.com
-  database-url: postgresql://postgres:postgres@dbpostgres.czg2ea2yu0rz.us-east-1.rds.amazonaws.com:5432/dbpostgres?schema=public
+  postgres-host: orders.czg2ea2yu0rz.us-east-1.rds.amazonaws.com
+  database-url: postgresql://postgres:postgres@orders.czg2ea2yu0rz.us-east-1.rds.amazonaws.com:5432/orders?schema=public
+  aws-region: us-east-1
+
 ---
 apiVersion: v1
 kind: Service
@@ -106,7 +154,7 @@ spec:
     app: api
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
-      nodePort: 30000
+      port: 3001
+      targetPort: 3001
+      nodePort: 30001
   type: LoadBalancer
