@@ -12,9 +12,12 @@ spec:
         app: api-order
     spec:
       containers:
-        - name: api
+        - name: api-order-deployment
           image: devrsilva/order-microsservice:latest
           resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
             limits:
               memory: "512Mi"
               cpu: "500m"
@@ -148,10 +151,10 @@ stringData:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-svc
+  name: api-order-svc
 spec:
   selector:
-    app: api
+    app: api-order
   ports:
     - protocol: TCP
       port: 3001
