@@ -1,13 +1,12 @@
 import { logger } from '@/shared/helpers/logger.helper'
 import { AwsSqsAdapter } from './aws-sqs.adapter'
-import constants from '@/shared/constants'
 import { UpdateOrderStatusGateway } from '../gateways/update-order-status/update-order-status.gateway'
 import { UpdateOrderUseCase } from '@/usecases/update-order-status/update-order.usecase'
 
 export const processMessagesOnQueue = async (): Promise<void> => {
   while (true) {
     try {
-      await processedPaymentsQueues([process.env.QUEUE_APPROVED_PAYMENT!, process.env.QUEUE_UNAUTHORIZED_PAYMENT!])
+      await processedPaymentsQueues([process.env.QUEUE_UPDATE_ORDER_FIFO!, process.env.QUEUE_UNAUTHORIZED_PAYMENT!])
     } catch (error: any) {
       logger.error(`Error processing queue message, ${error}`)
     }
