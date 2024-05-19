@@ -46,32 +46,32 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: database-url
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: postgres-host
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: postgres-db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: postgres-password
             - name: AWS_REGION
               valueFrom:
                 secretKeyRef:
-                  name: api-secrets
+                  name: api-order-secrets
                   key: aws-region
             - name: AWS_ACCESS_KEY
               valueFrom:
@@ -86,32 +86,32 @@ spec:
             - name: ENCRYPT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: encrypt-key
             - name: APP_ID
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: app-id
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: secret-key
             - name: CREATED_ORDER_QUEUE_NAME
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: created-order-queue-name
             - name: QUEUE_APPROVED_PAYMENT
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: queue-approved-payment
             - name: QUEUE_UNAUTHORIZED_PAYMENT
               valueFrom:
                 secretKeyRef:
-                  name: order-credentials
+                  name: api-order-secrets
                   key: queue-unauthorized-payment
             
 ---
@@ -137,7 +137,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: api-secrets
+  name: api-order-secrets
 type: Opaque
 stringData:
   postgres-db: orders
