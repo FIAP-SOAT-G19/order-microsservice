@@ -87,32 +87,32 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: ENCRYPT_KEY
+                  key: encrypt-key
             - name: APP_ID
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: APP_ID
+                  key: app-id
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: SECRET_KEY
+                  key: secret-key
             - name: CREATED_ORDER_QUEUE_NAME
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: CREATED_ORDER_QUEUE_NAME
+                  key: created-order-queue-name
             - name: QUEUE_APPROVED_PAYMENT
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: QUEUE_APPROVED_PAYMENT
+                  key: queue-approved-payment
             - name: QUEUE_UNAUTHORIZED_PAYMENT
               valueFrom:
                 secretKeyRef:
                   name: order-credentials
-                  key: QUEUE_UNAUTHORIZED_PAYMENT
+                  key: queue-unauthorized-payment
             
 ---
 apiVersion: autoscaling/v2
