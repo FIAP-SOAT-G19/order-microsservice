@@ -1,10 +1,13 @@
-FROM node:18
+FROM node:20.12
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --loglevel verbose
+
+RUN apt-get update && \
+    apt-get install -y awscli
 
 COPY . .
 

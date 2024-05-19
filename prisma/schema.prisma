@@ -11,30 +11,32 @@ datasource db {
 }
 
 model Client {
-  id        String    @id
-  name      String
-  email     String
-  cpf       String
-  password  String
-  createdAt DateTime
-  updatedAt DateTime? @updatedAt
-  deletedAt DateTime?
-  Order     Order[]
+  id         String    @id
+  identifier String
+  name       String
+  email      String
+  cpf        String
+  createdAt  DateTime
+  updatedAt  DateTime? @updatedAt
+  deletedAt  DateTime?
+  Order      Order[]
 
   @@map("clients")
 }
 
-model Employee {
-  id        String    @id
-  name      String
-  email     String
-  cpf       String
-  password  String
-  createdAt DateTime
-  updatedAt DateTime? @updatedAt
-  deletedAt DateTime?
+model Product {
+  id           String         @id
+  identifier   String
+  name         String
+  category     String
+  price        Int
+  description  String
+  image        String
+  createdAt    DateTime
+  updatedAt    DateTime?      @updatedAt
+  OrderProduct OrderProduct[]
 
-  @@map("employees")
+  @@map("products")
 }
 
 model Order {
@@ -43,44 +45,13 @@ model Order {
   client         Client?        @relation(fields: [clientId], references: [id])
   clientId       String?
   clientDocument String?
-  status         OrderStatus
+  status         String
   totalValue     Int
   createdAt      DateTime
   paidAt         DateTime?
   OrderProduct   OrderProduct[]
-  Payment        Payment[]
 
   @@map("orders")
-}
-
-enum OrderStatus {
-  waitingPayment
-  received
-  InPreparation
-  prepared
-  finalized
-  canceled
-}
-
-model Product {
-  id           String          @id
-  name         String
-  category     ProductCategory
-  price        Int
-  description  String
-  image        String
-  createdAt    DateTime
-  updatedAt    DateTime?       @updatedAt
-  OrderProduct OrderProduct[]
-
-  @@map("products")
-}
-
-enum ProductCategory {
-  snack
-  accompaniment
-  drink
-  dessert
 }
 
 model OrderProduct {
@@ -96,16 +67,27 @@ model OrderProduct {
   @@map("order_products")
 }
 
-model Payment {
-  id          String    @id
-  order       Order     @relation(fields: [orderNumber], references: [orderNumber])
-  orderNumber String    @unique()
-  status      String
-  reason      String?
-  createdAt   DateTime
-  updatedAt   DateTime? @updatedAt
+model Request {
+  id        String   @id
+  method    String
+  route     String
+  input     String   @db.Text
+  output    String   @db.Text
+  status    Int
+  createdAt DateTime
+  updatedAt DateTime
 
-  @@map("payments")
+  @@map("requests")
+}
+
+model PublishedMessages {
+  id        String   @id
+  queue     String
+  origin    String
+  message   String   @db.Text
+  createdAt DateTime
+
+  @@map("published_messages")
 }
 
 model SeedersHistory {
@@ -114,17 +96,4 @@ model SeedersHistory {
   executedAt DateTime
 
   @@map("seeders_histories")
-}
-
-model Request {
-  id        String    @id
-  method    String
-  route     String
-  input     String    @db.Text
-  output    String?   @db.Text
-  status    Int?
-  createdAt DateTime
-  updatedAt DateTime?
-
-  @@map("requests")
 }

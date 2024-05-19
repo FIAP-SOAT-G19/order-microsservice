@@ -8,6 +8,9 @@
   "plugins": [
     "@typescript-eslint"
   ],
+  "ignorePatterns": [
+    "features/**/*"
+  ],
   "rules": {
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/no-namespace": "off",
@@ -17,15 +20,9 @@
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/consistent-type-imports": "off",
-    "@typescript-eslint/indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "ignoredNodes": [
-          "ProperyDefinition"
-        ]
-      }
-    ]
+    "@typescript-eslint/no-extraneous-class": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/restrict-template-expressions": "off"
   }
 }
