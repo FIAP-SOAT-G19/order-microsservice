@@ -3,6 +3,9 @@
 ## ✳️ Sobre
 O **Tech Challenge** é um projeto de um sistema de autoatendimento de fast food, que é composto por uma série de dispositivos e interfaces que permitem aos clientes selecionar e fazer pedidos sem precisar interagir com um atendente.
 
+Neste repositório está contido o **Microsserviço de Pedidos**, o qual consiste em uma API que será acessada pelos clientes do restaurante para pedir e visualizar seus pedidos.
+
+
 ---
 
 ## 🛠 Ferramentas Utilizadas
@@ -19,7 +22,7 @@ O **Tech Challenge** é um projeto de um sistema de autoatendimento de fast food
 - Clone o projeto
 
   ```bash
-  git clone https://github.com/FIAP-SOAT-G19/tech-challenge.git
+  git clone https://github.com/FIAP-SOAT-G19/orders-microservice.git
   ````
 ---
 
@@ -33,8 +36,7 @@ Existe o arquivo `.env.example` com todas as variáveis utilizadas para rodar o 
 ## ▶️ Executando o projeto
 - Execute os seguintes comandos:
   ```bash
-    kubectl apply -f k8s/db-deployment.yaml
-    kubectl apply -f k8s/api-deployment.yaml
+    kubectl apply -f k8s/api-order-deployment.yaml
     kubectl apply -f k8s/metrics.yaml
   ```
 
