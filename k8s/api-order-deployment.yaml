@@ -24,24 +24,6 @@ spec:
           ports:
             - containerPort: 3001
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /api/v1/livenessProbe
-              port: 3001
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 2
-            timeoutSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /api/v1/readinessProbe
-              port: 3001
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 2
-            timeoutSeconds: 10
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -123,6 +105,11 @@ spec:
                 secretKeyRef:
                   name: api-order-secrets
                   key: port
+            - name: CARD_ENCRYPTOR_MICROSSERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: card-encryptor-microsservice-url
 
 ---
 apiVersion: autoscaling/v2
@@ -164,6 +151,7 @@ stringData:
   queue-unauthorized-payment: https://sqs.us-east-1.amazonaws.com/471112746092/unauthorized_payment.fifo
   queue-update-order: https://sqs.us-east-1.amazonaws.com/471112746092/update_order.fifo
   port: "3001"
+  card-encryptor-microsservice-url: api-card-encryptor-svc
 
 ---
 apiVersion: v1
