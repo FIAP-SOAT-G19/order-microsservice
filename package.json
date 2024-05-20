@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "3.556.0",
-    "@prisma/client": "5.8.1",
+    "@prisma/client": "5.14.0",
     "cors": "2.8.5",
     "crypto-js": "4.2.0",
     "dotenv": "16.4.1",
