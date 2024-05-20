@@ -4,6 +4,7 @@ import { listOrderStatusControllerFactory } from './factories/list-order-status.
 import { updateOrderStatusControllerFactory } from './factories/update-order-status-controller.factory'
 import { listOrderByOrderNumberControllerFactory } from './factories/list-order-by-order-number-controller.factory'
 import { listOrderControllerFactory } from './factories/list-orders.factory'
+import { getProductsControllerFactory } from './factories/get-products-controller.factory'
 import { Router } from 'express'
 
 const router = Router()
@@ -13,5 +14,8 @@ router.get('/orders/:orderNumber/status', expressRouteAdapter(listOrderStatusCon
 router.get('/orders/:orderNumber', expressRouteAdapter(listOrderByOrderNumberControllerFactory()))
 router.patch('/orders/:orderNumber', expressRouteAdapter(updateOrderStatusControllerFactory()))
 router.get('/orders', expressRouteAdapter(listOrderControllerFactory()))
+
+router.get('/products', expressRouteAdapter(getProductsControllerFactory()))
+// router.get('/clients', expressRouteAdapter(listClientsControllerFactory()))
 
 export { router }
