@@ -43,7 +43,7 @@ jobs:
 
       - name: Set SECRETS
         run: |
-          kubectl delete secret order-credentials
+          kubectl delete secret order-credentials --ignore-not-found
           kubectl create secret generic order-credentials --from-literal=AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY_ID }} --from-literal=AWS_SECRET_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} 
 
       - name: Deploy to EKS
