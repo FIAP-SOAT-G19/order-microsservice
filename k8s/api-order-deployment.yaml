@@ -113,6 +113,16 @@ spec:
                 secretKeyRef:
                   name: api-order-secrets
                   key: queue-unauthorized-payment
+            - name: QUEUE_UPDATE_ORDER_FIFO
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: queue-update-order
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: port
 
 ---
 apiVersion: autoscaling/v2
@@ -152,6 +162,8 @@ stringData:
   created-order-queue-name: https://sqs.us-east-1.amazonaws.com/471112746092/created_order.fifo
   queue-approved-payment: https://sqs.us-east-1.amazonaws.com/471112746092/approved_payment.fifo
   queue-unauthorized-payment: https://sqs.us-east-1.amazonaws.com/471112746092/unauthorized_payment.fifo
+  queue-update-order: https://sqs.us-east-1.amazonaws.com/471112746092/update_order.fifo
+  port: "3001"
 
 ---
 apiVersion: v1
