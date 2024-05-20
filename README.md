@@ -5,7 +5,6 @@ O **Tech Challenge** é um projeto de um sistema de autoatendimento de fast food
 
 Neste repositório está contido o **Microsserviço de Pedidos**, o qual consiste em uma API que será acessada pelos clientes do restaurante para pedir e visualizar seus pedidos.
 
-
 ---
 
 ## 🛠 Ferramentas Utilizadas
@@ -53,7 +52,7 @@ Existe o arquivo `.env.example` com todas as variáveis utilizadas para rodar o 
 
 - Utilize os comandos abaixo para encaminhar as conexões das portas locais para a portas dos pod's Kubernetes (o segundo comando é opcional)
   ```bash
-    kubectl port-forward service/api-svc 3000:3000 &
+    kubectl port-forward service/api-orders-svc 3000:3000 &
     kubectl port-forward service/database-svc 5432:5432 &
   ```
 
@@ -64,18 +63,6 @@ Existe o arquivo `.env.example` com todas as variáveis utilizadas para rodar o 
 ## 🧩 Swagger
 É possível acessar a documentação da API pelo [Swagger da API](http://localhost:3000/api-docs) e simular os endpoints
 
----
-
-## ▶️ Vídeo do Projeto
-Link do vídeo no [Youtube](https://youtu.be/TDvxi906vco?si=yY3aulSxq2tg5fiC)
-
----
-
-## 🧪 Testes:
-- Rodar todos os testes
-  ```bash
-  npm t
-  ```
 ---
 
 ## 🚀 Commits no projeto
