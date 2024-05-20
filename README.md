@@ -1,4 +1,4 @@
-# 💬 Tech Challenge
+# 💬 Order Microservice
 
 ## ✳️ Sobre
 O **Tech Challenge** é um projeto de um sistema de autoatendimento de fast food, que é composto por uma série de dispositivos e interfaces que permitem aos clientes selecionar e fazer pedidos sem precisar interagir com um atendente.
@@ -31,7 +31,18 @@ Existe o arquivo `.env.example` com todas as variáveis utilizadas para rodar o 
 ---
 
 ## Arquitetura do projeto
-![Arquitetura do Projeto](./assets/images/architecture.jpg)
+![Arquitetura do Projeto](./assets/images/arch-ms.jpeg)
+
+## 🧪 Testes:
+- Evidência cobertura de testes unitários
+![Arquitetura do Projeto](./assets/images/unit-order.png)
+
+- Evidência teste BDD
+![Arquitetura do Projeto](./assets/images/bdd-order.png)
+  ```bash
+  npm run test:bdd
+  ```
+---
 
 ## ▶️ Executando o projeto
 - Execute os seguintes comandos:
