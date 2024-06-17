@@ -1,14 +1,30 @@
 import { ClientEntity } from '@/entities/clients/client.entity'
 import { ProductEntity } from '@/entities/products/product.entity'
 import { prismaClient } from '../prisma.client'
-import { CreateOrderInput, CreateOrderGatewayInterface, CreateOrderOutput, CreateOrderProductInput, CreatePublishedMessageLog } from './create-order.gateway.interface'
+import { CreateOrderGatewayInput, CreateOrderGatewayInterface, CreateOrderOutput, CreateOrderProductInput, CreatePublishedMessageLog } from './create-order.gateway.interface'
 import { AwsSqsAdapter } from '@/adapters/queue/aws-sqs.adapter'
 import { NodeFetchAdapter } from '@/adapters/tools/http/node-fetch.adapter'
 import constants from '@/shared/constants'
+import { DefaultGateway } from '../default.gateway'
 
-export class CreateOrderGateway implements CreateOrderGatewayInterface {
-  async createOrder (data: CreateOrderInput): Promise<CreateOrderOutput> {
-    const order = await prismaClient.order.create({ data })
+export class CreateOrderGateway extends DefaultGateway implements CreateOrderGatewayInterface {
+  async createOrder (order: CreateOrderGatewayInput, products: CreateOrderProductInput []): Promise<CreateOrderOutput> {
+    await prismaClient.order.create({
+      data: {
+        ...order,
+        OrderProduct: {
+          createMany: {
+            data: products.map((product) => ({
+              id: product.id,
+              productId: product.productId,
+              productPrice: product.productPrice,
+              amount: product.amount,
+              createdAt: product.createdAt
+            }))
+          }
+        }
+      }
+    })
 
     return {
       id: order.id,
@@ -16,14 +32,10 @@ export class CreateOrderGateway implements CreateOrderGatewayInterface {
       orderNumber: order.orderNumber,
       totalValue: order.totalValue,
       clientId: order.clientId ?? '',
-      clientDocument: order.clientDocument,
+      clientDocument: order.clientDocument ?? '',
       createdAt: order.createdAt,
-      paidAt: order.paidAt
+      paidAt: null
     }
-  }
-
-  async createOrderProduct (data: CreateOrderProductInput): Promise<void> {
-    await prismaClient.orderProduct.create({ data })
   }
 
   async getProductById (id: string): Promise<ProductEntity | null> {
@@ -66,8 +78,9 @@ export class CreateOrderGateway implements CreateOrderGatewayInterface {
     return await queue.sendMessage(queueName, body, messageGroupId, messageDeduplicationId)
   }
 
-  async createPublishedMessageLog (data: CreatePublishedMessageLog): Promise<void> {
-    await prismaClient.publishedMessages.create({ data })
+  async createPublishedMessageLog (data: CreatePublishedMessageLog): Promise<string> {
+    const messageLog = await prismaClient.publishedMessages.create({ data })
+    return messageLog.id
   }
 
   async saveCardExternal (encryptedCard: string): Promise<string> {
@@ -83,5 +96,18 @@ export class CreateOrderGateway implements CreateOrderGatewayInterface {
 
     const response = await http.post(url, headers, data)
     return response
+  }
+
+  async deleteCardExternal (cardIdentifier: string): Promise<void> {
+    const http = new NodeFetchAdapter()
+
+    const url = `${constants.CARD_ENCRYPTOR_MICROSSERVICE.URL}/card/${cardIdentifier}`
+    const headers = {
+      'Content-Type': 'application/json',
+      appid: process.env.APP_ID,
+      secretkey: process.env.SECRET_KEY
+    }
+
+    await http.delete(url, headers)
   }
 }

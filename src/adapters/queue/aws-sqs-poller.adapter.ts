@@ -2,6 +2,7 @@ import { logger } from '@/shared/helpers/logger.helper'
 import { AwsSqsAdapter } from './aws-sqs.adapter'
 import { UpdateOrderStatusGateway } from '../gateways/update-order-status/update-order-status.gateway'
 import { UpdateOrderUseCase } from '@/usecases/update-order-status/update-order.usecase'
+import { OrderNotFoundError } from '@/shared/errors'
 
 export const processMessagesOnQueue = async (): Promise<void> => {
   while (true) {
@@ -28,11 +29,17 @@ const updateOrderStatus = async (queueName: string): Promise<any> => {
   }
 
   for (const message of messages) {
-    const { orderNumber, status } = JSON.parse(message.Body)
-    const gateway = new UpdateOrderStatusGateway()
-    const updateOrderUseCase = new UpdateOrderUseCase(gateway)
-    await updateOrderUseCase.execute(orderNumber, status)
-    await queue.deleteMessage(queueName, message.ReceiptHandle, message.MessageId)
+    try {
+      const { orderNumber, status } = JSON.parse(message.Body)
+      const gateway = new UpdateOrderStatusGateway()
+      const updateOrderUseCase = new UpdateOrderUseCase(gateway)
+      await updateOrderUseCase.execute(orderNumber, status)
+      await queue.deleteMessage(queueName, message.ReceiptHandle, message.MessageId)
+    } catch (error) {
+      if (error instanceof OrderNotFoundError) {
+        await queue.deleteMessage(queueName, message.ReceiptHandle, message.MessageId)
+      }
+    }
   }
 
   await new Promise(resolve => setTimeout(resolve, 1000))
