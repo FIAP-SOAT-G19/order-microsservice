@@ -20,4 +20,16 @@ export class DefaultGateway {
       paidAt: order.paidAt ?? undefined
     }
   }
+
+  async updateOrderStatus (orderNumber: string, status: string, paidAt: Date | null): Promise<void> {
+    await prismaClient.order.update({
+      data: {
+        status,
+        paidAt
+      },
+      where: {
+        orderNumber
+      }
+    })
+  }
 }

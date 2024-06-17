@@ -2,7 +2,7 @@ import { CreateOrderUseCase } from './create-order.usecase'
 import { OrderEntity } from '@/entities/orders/order.entity'
 import { CreateOrderGatewayInterface } from '@/adapters/gateways/create-order/create-order.gateway.interface'
 import { Cryptodapter } from '@/adapters/tools/crypto/crypto.adapter'
-import { InvalidParamError } from '@/shared/errors'
+import { InvalidParamError, ServerError } from '@/shared/errors'
 import { logger } from '@/shared/helpers/logger.helper'
 import { mock } from 'jest-mock-extended'
 import MockDate from 'mockdate'
@@ -31,6 +31,18 @@ const fakeClient = {
   createdAt: new Date('1990-01-01')
 }
 
+const fakeProducts = [
+  {
+    id: 'AnyId',
+    amount: 2,
+    createdAt: new Date(),
+    orderId: 'AnyOrderId',
+    productId: 'product_id_1',
+    productPrice: 2000
+
+  }
+]
+
 describe('CreateOrderUseCase', () => {
   let sut: any
   let input: any
@@ -50,12 +62,6 @@ describe('CreateOrderUseCase', () => {
       products: [
         {
           id: 'idProduct1',
-          price: 2000,
-          amount: 2
-
-        },
-        {
-          id: 'idProduct2',
           price: 2000,
           amount: 2
 
@@ -124,7 +130,7 @@ describe('CreateOrderUseCase', () => {
 
   test('should calculate totalValue correctly', async () => {
     const totalValue = sut.calculateTotalValue(input.products)
-    expect(totalValue).toBe(8000)
+    expect(totalValue).toBe(4000)
   })
 
   test('should throws if products is empty', async () => {
@@ -145,17 +151,12 @@ describe('CreateOrderUseCase', () => {
     await sut.execute(input)
 
     expect(gateway.createOrder).toHaveBeenCalledTimes(1)
-    expect(gateway.createOrder).toHaveBeenCalledWith(fakeOrder)
-  })
-
-  test('should call gateway.createOrderProduct with correct values', async () => {
-    await sut.execute(input)
-    expect(gateway.createOrderProduct).toHaveBeenCalledTimes(2)
+    expect(gateway.createOrder).toHaveBeenCalledWith(fakeOrder, fakeProducts)
   })
 
   test('should call gateway.getProductById', async () => {
     await sut.execute(input)
-    expect(gateway.getProductById).toHaveBeenCalledTimes(2)
+    expect(gateway.getProductById).toHaveBeenCalledTimes(1)
   })
 
   test('should throw an exception if a invalid product is provided', async () => {
@@ -208,15 +209,6 @@ describe('CreateOrderUseCase', () => {
         image: 'http://uri.com/product1.png',
         amount: 2,
         createdAt: new Date()
-      }, {
-        id: 'product_id_2',
-        name: 'Product 2',
-        category: 'accompaniment',
-        price: 2000,
-        description: 'Product 1 description',
-        image: 'http://uri.com/product1.png',
-        amount: 2,
-        createdAt: new Date()
       }],
       client: {
         id: 'AnyId',
@@ -243,15 +235,6 @@ describe('CreateOrderUseCase', () => {
       products: [{
         id: 'product_id_1',
         name: 'Product 1',
-        category: 'accompaniment',
-        price: 2000,
-        description: 'Product 1 description',
-        image: 'http://uri.com/product1.png',
-        amount: 2,
-        createdAt: new Date()
-      }, {
-        id: 'product_id_2',
-        name: 'Product 2',
         category: 'accompaniment',
         price: 2000,
         description: 'Product 1 description',
@@ -292,15 +275,6 @@ describe('CreateOrderUseCase', () => {
           image: 'http://uri.com/product1.png',
           amount: 2,
           createdAt: new Date()
-        }, {
-          id: 'product_id_2',
-          name: 'Product 2',
-          category: 'accompaniment',
-          price: 2000,
-          description: 'Product 1 description',
-          image: 'http://uri.com/product1.png',
-          amount: 2,
-          createdAt: new Date()
         }],
         client: {
           id: 'AnyId',
@@ -318,9 +292,10 @@ describe('CreateOrderUseCase', () => {
   test('should not call gateway.createPublishedMessageLog when publish message fails', async () => {
     gateway.sendMessageQueue.mockResolvedValueOnce(false)
 
-    await sut.execute(input)
+    const promise = sut.execute(input)
 
     expect(gateway.createPublishedMessageLog).not.toHaveBeenCalled()
+    await expect(promise).rejects.toThrow(new ServerError(new Error('Error publishing message')))
   })
 
   test('should call gateway.saveCardExternal onde and with correct credit card', async () => {
@@ -340,6 +315,6 @@ describe('CreateOrderUseCase', () => {
   test('should throws if card_encryptor returns a invalid card id', async () => {
     gateway.saveCardExternal.mockResolvedValueOnce('invalidCardId')
 
-    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('cardId'))
+    await expect(sut.execute(input)).rejects.toThrow(new InvalidParamError('cardIdentifier'))
   })
 })

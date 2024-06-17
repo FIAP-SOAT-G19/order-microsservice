@@ -1,9 +1,3 @@
--- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('waitingPayment', 'received', 'InPreparation', 'prepared', 'finalized', 'canceled');
-
--- CreateEnum
-CREATE TYPE "ProductCategory" AS ENUM ('snack', 'accompaniment', 'drink', 'dessert');
-
 -- CreateTable
 CREATE TABLE "clients" (
     "id" TEXT NOT NULL,
@@ -23,7 +17,7 @@ CREATE TABLE "products" (
     "id" TEXT NOT NULL,
     "identifier" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "category" "ProductCategory" NOT NULL,
+    "category" TEXT NOT NULL,
     "price" INTEGER NOT NULL,
     "description" TEXT NOT NULL,
     "image" TEXT NOT NULL,
@@ -39,7 +33,7 @@ CREATE TABLE "orders" (
     "orderNumber" TEXT NOT NULL,
     "clientId" TEXT,
     "clientDocument" TEXT,
-    "status" "OrderStatus" NOT NULL,
+    "status" TEXT NOT NULL,
     "totalValue" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "paidAt" TIMESTAMP(3),
@@ -71,6 +65,26 @@ CREATE TABLE "requests" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "requests_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "published_messages" (
+    "id" TEXT NOT NULL,
+    "queue" TEXT NOT NULL,
+    "origin" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "published_messages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "seeders_histories" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "executedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "seeders_histories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
