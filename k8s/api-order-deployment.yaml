@@ -1,0 +1,169 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-order-deployment
+spec:
+  selector:
+    matchLabels:
+      app: api-order
+  template:
+    metadata:
+      labels:
+        app: api-order
+    spec:
+      containers:
+        - name: api-order-deployment
+          image: devrsilva/order-microsservice:latest
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/v1/livenessProbe
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 2
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/readinessProbe
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 2
+            timeoutSeconds: 10
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: database-url
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: postgres-host
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: postgres-db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: postgres-password
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: aws-region
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: order-credentials
+                  key: AWS_ACCESS_KEY
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: order-credentials
+                  key: AWS_SECRET_KEY
+            - name: ENCRYPT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: encrypt-key
+            - name: APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: app-id
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: secret-key
+            - name: CREATED_ORDER_QUEUE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: created-order-queue-name
+            - name: QUEUE_APPROVED_PAYMENT
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: queue-approved-payment
+            - name: QUEUE_UNAUTHORIZED_PAYMENT
+              valueFrom:
+                secretKeyRef:
+                  name: api-order-secrets
+                  key: queue-unauthorized-payment
+            
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-order-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-order-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 20
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-order-secrets
+type: Opaque
+stringData:
+  postgres-db: orders
+  postgres-user: postgres
+  postgres-password: postgres
+  postgres-host: orders.czg2ea2yu0rz.us-east-1.rds.amazonaws.com
+  database-url: postgresql://postgres:postgres@orders.czg2ea2yu0rz.us-east-1.rds.amazonaws.com:5432/orders?schema=public
+  aws-region: us-east-1
+  encrypt-key: $2a$12$N8KpRrrBKBkFo3jYez.KTOA7nTvlwyuM0sVlzPVdCMhRQzdG0NYFi
+  app-id: order_microsservice
+  secret-key: e6cd5db8d02df52e23eb590e59d43cdc
+  created-order-queue-name: https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo
+  queue-approved-payment: https://sqs.us-east-1.amazonaws.com/975049990702/approved_payment.fifo
+  queue-unauthorized-payment: https://sqs.us-east-1.amazonaws.com/975049990702/unauthorized_payment.fifo
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-order-svc
+spec:
+  selector:
+    app: api-order
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
+      nodePort: 30001
+  type: LoadBalancer

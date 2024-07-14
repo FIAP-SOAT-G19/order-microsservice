@@ -1,7 +1,7 @@
 import { ClientEntity } from '@/entities/clients/client.entity'
 import { ProductEntity } from '@/entities/products/product.entity'
 
-export type CreateOrderInput = {
+export type CreateOrderGatewayInput = {
   id: string
   status: string
   totalValue: number
@@ -40,11 +40,12 @@ export type CreatePublishedMessageLog = {
 }
 
 export interface CreateOrderGatewayInterface {
-  createOrder: (input: CreateOrderInput) => Promise<CreateOrderOutput>
-  createOrderProduct: (input: CreateOrderProductInput) => Promise<void>
+  createOrder: (order: CreateOrderGatewayInput, products: CreateOrderProductInput[]) => Promise<CreateOrderOutput>
   getProductById: (id: string) => Promise<ProductEntity | null>
   getClientById: (id: string) => Promise<ClientEntity | null>
   sendMessageQueue: (queueName: string, body: string, messageGroupId: string, messageDeduplicationId: string) => Promise<boolean>
-  createPublishedMessageLog: (input: CreatePublishedMessageLog) => Promise<void>
+  createPublishedMessageLog: (input: CreatePublishedMessageLog) => Promise<string>
   saveCardExternal: (encryptedData: string) => Promise<string>
+  deleteCardExternal: (cardIdentifier: string) => Promise<void>
+  updateOrderStatus: (orderNumber: string, status: string, paidAt: Date | null) => Promise<void>
 }
