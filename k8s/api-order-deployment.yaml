@@ -150,7 +150,7 @@ stringData:
   queue-approved-payment: https://sqs.us-east-1.amazonaws.com/471112746092/approved_payment.fifo
   queue-unauthorized-payment: https://sqs.us-east-1.amazonaws.com/471112746092/unauthorized_payment.fifo
   queue-update-order: https://sqs.us-east-1.amazonaws.com/471112746092/update_order.fifo
-  card-encryptor-microsservice-url: http://a266734233740437db7d75cf3aa1c409-831495522.us-east-1.elb.amazonaws.com:3002/api/v1
+  card-encryptor-microsservice-url: http://a3eaf7ba495e9478ebdbcf667bfe1c02-254626853.us-east-1.elb.amazonaws.com:3002/api/v1
   port: "3001"
 
 ---
