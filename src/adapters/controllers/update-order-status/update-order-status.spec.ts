@@ -3,7 +3,7 @@ import { HttpRequest } from '../controller.interface'
 import { UpdateOrderStatusController } from './update-order-status'
 import { UpdateOrderUseCaseInterface } from '@/usecases/update-order-status/update-order.usecase.interface'
 import { badRequest, serverError, success } from '@/shared/helpers/http.helper'
-import { InvalidParamError } from '@/shared/errors'
+import { InvalidParamError, ServerError } from '@/shared/errors'
 
 const updateOrderStatusUseCase = mock<UpdateOrderUseCaseInterface>()
 
@@ -38,7 +38,7 @@ describe('UpdateOrderStatusController', () => {
 
     const output = await sut.execute(input)
 
-    expect(output).toEqual(serverError(error))
+    expect(output).toEqual(serverError(new ServerError(error)))
   })
 
   test('should return a correct error if UpdateOrderStatusUseCase throws', async () => {

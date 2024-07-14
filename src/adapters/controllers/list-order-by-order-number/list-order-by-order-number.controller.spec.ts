@@ -3,6 +3,7 @@ import { HttpRequest } from '../controller.interface'
 import { ListOrderByOrderNumberController } from './list-order-by-order-number.controller'
 import { ListOrderByOrderNumberUseCaseInterface } from '@/usecases/list-order-by-order-number/list-order-by-orderNumber.usecase.interface'
 import { serverError } from '@/shared/helpers/http.helper'
+import { ServerError } from '@/shared/errors'
 
 const listOrderByOrderNumberUseCase = mock<ListOrderByOrderNumberUseCaseInterface>()
 const fakeOrder = {
@@ -62,6 +63,6 @@ describe('ListOrderByOrderNumberController', () => {
 
     const output = await sut.execute(input)
 
-    expect(output).toEqual(serverError(error))
+    expect(output).toEqual(serverError(new ServerError(error)))
   })
 })

@@ -3,7 +3,7 @@ import { HttpRequest } from '../controller.interface'
 import { ListOrderStatusController } from './list-order-status.controller'
 import { ListOrderStatusUseCaseInterface } from '@/usecases/list-order-status/list-order-status.usecase.interface'
 import { mock } from 'jest-mock-extended'
-import { InvalidParamError } from '@/shared/errors'
+import { InvalidParamError, ServerError } from '@/shared/errors'
 
 const listOrderStatusUseCase = mock<ListOrderStatusUseCaseInterface>()
 
@@ -43,7 +43,7 @@ describe('ListOrderStatusController', () => {
 
     const output = await sut.execute(input)
 
-    expect(output).toEqual(serverError(error))
+    expect(output).toEqual(serverError(new ServerError(error)))
   })
 
   test('should return a correct error if listOrderStatusUseCase throws', async () => {

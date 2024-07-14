@@ -1,7 +1,7 @@
 import { CreateOrderUseCaseInterface } from '@/usecases/create-orders/create-order.usecase.interface'
 import { CreateOrderController } from './create-order.controller'
 import { mock } from 'jest-mock-extended'
-import { InvalidParamError } from '@/shared/errors'
+import { InvalidParamError, ServerError } from '@/shared/errors'
 import { success, serverError, badRequest } from '@/shared/helpers/http.helper'
 import { HttpRequest } from '../controller.interface'
 
@@ -51,7 +51,7 @@ describe('CreateOrderController', () => {
 
     const output = await sut.execute(input)
 
-    expect(output).toEqual(serverError(error))
+    expect(output).toEqual(serverError(new ServerError(error)))
   })
 
   test('should return a correct error if CreateOrderUseCase throws', async () => {

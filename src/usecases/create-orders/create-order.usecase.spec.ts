@@ -12,48 +12,48 @@ const crypto = mock<Cryptodapter>()
 
 process.env.CREATED_ORDER_QUEUE_NAME = 'https://sqs.us-east-1.amazonaws.com/975049990702/created_order.fifo'
 
-const fakeOrder = {
-  id: 'AnyOrderId',
-  status: 'waitingPayment',
-  totalValue: 8000,
-  createdAt: new Date(),
-  orderNumber: 'AnyOrderNumber',
-  clientId: 'AnyCliendId',
-  clientDocument: 'AnyClientDocument'
-}
-
-const fakeClient = {
-  id: 'AnyId',
-  identifier: 'anyIdentifier',
-  name: 'AnyClientName',
-  email: 'anyEmail@email.com',
-  cpf: 'anyCPF',
-  createdAt: new Date('1990-01-01')
-}
-
-const fakeProducts = [
-  {
-    id: 'AnyId',
-    amount: 2,
-    createdAt: new Date(),
-    orderId: 'AnyOrderId',
-    productId: 'product_id_1',
-    productPrice: 2000
-
-  }
-]
-
 describe('CreateOrderUseCase', () => {
   let sut: any
   let input: any
+  
+  const fakeOrder = {
+    id: 'AnyOrderId',
+    status: 'waitingPayment',
+    totalValue: 8000,
+    createdAt: new Date(),
+    orderNumber: 'AnyOrderNumber',
+    clientId: 'AnyCliendId',
+    clientDocument: 'AnyClientDocument'
+  }
+
+  const fakeClient = {
+    id: 'AnyId',
+    identifier: 'anyIdentifier',
+    name: 'AnyClientName',
+    email: 'anyEmail@email.com',
+    cpf: 'anyCPF',
+    createdAt: new Date('1990-01-01')
+  }
+
+  const fakeProducts = [
+    {
+      id: 'AnyId',
+      amount: 2,
+      createdAt: new Date(),
+      orderId: 'AnyOrderId',
+      productId: 'product_id_1',
+      productPrice: 2000
+
+    }
+  ]
 
   beforeAll(() => {
-    MockDate.set(new Date())
     jest.spyOn(logger, 'info').mockImplementation(() => {})
     jest.spyOn(logger, 'error').mockImplementation(() => {})
   })
-
+  
   beforeEach(() => {
+    MockDate.set(new Date())
     sut = new CreateOrderUseCase(gateway, crypto)
     input = {
       status: 'waitingPayment',

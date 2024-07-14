@@ -2,6 +2,7 @@ import { mock } from 'jest-mock-extended'
 import { ListOrdersController } from './list-orders.controller'
 import { ListOrdersUseCaseInterface } from '@/usecases/list-orders/list-orders.usecase.interface'
 import { serverError } from '@/shared/helpers/http.helper'
+import { ServerError } from '@/shared/errors'
 
 const listOrderUseCase = mock<ListOrdersUseCaseInterface>()
 const fakeOrders = [{
@@ -54,6 +55,6 @@ describe('ListOrdersController', () => {
 
     const output = await sut.execute()
 
-    expect(output).toEqual(serverError(error))
+    expect(output).toEqual(serverError(new ServerError(error)))
   })
 })
